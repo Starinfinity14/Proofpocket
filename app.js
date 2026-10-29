@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const STORAGE_KEY = 'proofpocket.records.v1';
+  const LOCAL_STORAGE_KEY = 'proofpocket.records.v1';
+  let storageKey = LOCAL_STORAGE_KEY;
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const icons = {Electronics:'▣',Home:'⌂',Appliances:'▤',Furniture:'▥',Other:'◇'};
@@ -12,8 +13,8 @@
   let records = loadRecords();
   let toastTimer;
   function t(key, vars={}) { let value=(translations[lang]&&translations[lang][key])||translations.en[key]||key; return value.replace(/\{(\w+)\}/g,(_,k)=>vars[k]??''); }
-  function loadRecords(){try{const value=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(value)?value.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'):[]}catch{return []}}
-  function persist(change={}){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records));window.dispatchEvent(new CustomEvent('proofpocket:records-changed',{detail:{records:JSON.parse(JSON.stringify(records)),deletedIds:Array.isArray(change.deletedIds)?change.deletedIds:[]}}));return true}catch{showToast('Browser storage is full. Export data or remove older records.');return false}}
+  function loadRecords(){try{const value=JSON.parse(localStorage.getItem(storageKey)||'[]');return Array.isArray(value)?value.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'):[]}catch{return []}}
+  function persist(change={}){try{localStorage.setItem(storageKey,JSON.stringify(records));window.dispatchEvent(new CustomEvent('proofpocket:records-changed',{detail:{records:JSON.parse(JSON.stringify(records)),deletedIds:Array.isArray(change.deletedIds)?change.deletedIds:[]}}));return true}catch{showToast('Browser storage is full. Export data or remove older records.');return false}}
   function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function formatDate(date){if(!date)return t('noDate');const d=new Date(date+'T12:00:00');return Number.isNaN(d.getTime())?t('noDate'):new Intl.DateTimeFormat(lang==='hi'?'hi-IN':'en-IN',{day:'numeric',month:'short',year:'numeric'}).format(d)}
   function formatMoney(amount){if(amount===''||amount==null||!Number.isFinite(Number(amount)))return '';return new Intl.NumberFormat(lang==='hi'?'hi-IN':'en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(amount))}
@@ -40,6 +41,7 @@
   $('#clear-btn').addEventListener('click',()=>{if(!confirm(t('deleteAllConfirm')))return;const deletedIds=records.map(r=>r.id);records=[];persist({deletedIds});render();showToast(t('cleared'))});
   window.proofPocket = {
     getRecords: () => JSON.parse(JSON.stringify(records)),
+    setStorageScope: (scope) => { storageKey = scope ? `${LOCAL_STORAGE_KEY}.account.${scope}` : LOCAL_STORAGE_KEY; records = loadRecords(); render(); },
     replaceRecords: (next) => { records = Array.isArray(next) ? next : []; persist(); render(); },
     notify: (message) => showToast(message)
   };
