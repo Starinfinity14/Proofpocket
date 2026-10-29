@@ -130,7 +130,7 @@
   signUp.addEventListener('click', async () => {
     if (!form.reportValidity()) return;
     message.textContent = 'Creating account…';
-    const { data, error } = await client.auth.signUp({ email: email.value.trim(), password: password.value });
+    const { data, error } = await client.auth.signUp({ email: email.value.trim(), password: password.value, options: { emailRedirectTo: 'https://starinfinity14.github.io/Proofpocket/' } });
     if (error) { message.textContent = error.message; return; }
     if (data.session) await loadSession(data.session);
     else message.textContent = 'Account created. Check your email to confirm it, then sign in.';
