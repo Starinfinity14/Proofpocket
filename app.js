@@ -13,7 +13,7 @@
   let toastTimer;
   function t(key, vars={}) { let value=(translations[lang]&&translations[lang][key])||translations.en[key]||key; return value.replace(/\{(\w+)\}/g,(_,k)=>vars[k]??''); }
   function loadRecords(){try{const value=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(value)?value.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'):[]}catch{return []}}
-  function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records));return true}catch{showToast('Browser storage is full. Export data or remove older records.');return false}}
+  function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(records));window.dispatchEvent(new CustomEvent('proofpocket:records-changed',{detail:{records:JSON.parse(JSON.stringify(records))}}));return true}catch{showToast('Browser storage is full. Export data or remove older records.');return false}}
   function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function formatDate(date){if(!date)return t('noDate');const d=new Date(date+'T12:00:00');return Number.isNaN(d.getTime())?t('noDate'):new Intl.DateTimeFormat(lang==='hi'?'hi-IN':'en-IN',{day:'numeric',month:'short',year:'numeric'}).format(d)}
   function formatMoney(amount){if(amount===''||amount==null||!Number.isFinite(Number(amount)))return '';return new Intl.NumberFormat(lang==='hi'?'hi-IN':'en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(amount))}
@@ -38,5 +38,10 @@
   $('#search').addEventListener('input',renderRecords);$('#category-filter').addEventListener('change',renderRecords);$('#language').addEventListener('change',e=>{lang=e.target.value;try{localStorage.setItem('proofpocket.language',lang)}catch{}applyLanguage()});
   $('#export-btn').addEventListener('click',()=>{if(!records.length){showToast(t('noData'));return}const blob=new Blob([JSON.stringify({product:'ProofPocket prototype',exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`proofpocket-export-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);showToast(t('exported'))});
   $('#clear-btn').addEventListener('click',()=>{if(!confirm(t('deleteAllConfirm')))return;records=[];persist();render();showToast(t('cleared'))});
+  window.proofPocket = {
+    getRecords: () => JSON.parse(JSON.stringify(records)),
+    replaceRecords: (next) => { records = Array.isArray(next) ? next : []; persist(); render(); },
+    notify: (message) => showToast(message)
+  };
   applyLanguage();
 })();
