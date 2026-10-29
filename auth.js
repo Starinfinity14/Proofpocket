@@ -97,7 +97,9 @@
       const cloud = await fetchCloudRecords();
       if (cloud.length) {
         if (local.length && !confirm('Cloud records were found. Replace the records currently in this browser with the cloud records? Choose Cancel to keep browser records and upload them instead.')) {
+          hydration = false;
           await syncRecords(local);
+          hydration = true;
         } else {
           window.proofPocket.replaceRecords(cloud);
         }
