@@ -50,22 +50,20 @@
     if (error) throw error;
     return (data || []).map(fromDb);
   }
-  async function syncRecords(snapshot) {
+  async function syncRecords(snapshot, deletedIds = []) {
     if (!userId || hydration) return;
     const safe = Array.isArray(snapshot) ? snapshot : [];
+    const explicitDeletes = Array.isArray(deletedIds) ? [...new Set(deletedIds.filter(id => typeof id === 'string'))] : [];
     syncQueue = syncQueue.then(async () => {
       if (!userId || hydration) return;
-      const { data: remote, error: readError } = await client.from('purchases').select('id').eq('user_id', userId);
-      if (readError) throw readError;
       const rows = safe.map(toDb);
       if (rows.length) {
         const { error } = await client.from('purchases').upsert(rows, { onConflict: 'id' });
         if (error) throw error;
       }
-      const localIds = new Set(safe.map(r => r.id));
-      const removeIds = (remote || []).map(r => r.id).filter(id => !localIds.has(id));
-      if (removeIds.length) {
-        const { error } = await client.from('purchases').delete().eq('user_id', userId).in('id', removeIds);
+      // Only delete IDs explicitly reported by the UI; never infer deletion from a stale local snapshot.
+      if (explicitDeletes.length) {
+        const { error } = await client.from('purchases').delete().eq('user_id', userId).in('id', explicitDeletes);
         if (error) throw error;
       }
       status.textContent = 'Synced';
@@ -78,7 +76,7 @@
     return syncQueue;
   }
   window.addEventListener('proofpocket:records-changed', e => {
-    if (userId && !hydration) syncRecords(e.detail && e.detail.records);
+    if (userId && !hydration) syncRecords(e.detail && e.detail.records, e.detail && e.detail.deletedIds);
   });
 
   async function loadSession(session) {
