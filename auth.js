@@ -31,6 +31,7 @@
   let userId = null;
   let currentUser = null;
   let hydration = false;
+  let sessionGeneration = 0;
   let syncQueue = Promise.resolve();
   let profileMenu = null;
 
@@ -166,6 +167,7 @@
   });
 
   async function loadSession(session) {
+    const generation = ++sessionGeneration;
     userId = session && session.user ? session.user.id : null;
     updateProfile(session && session.user ? session.user : null);
     if (!userId) {
@@ -180,6 +182,7 @@
       hydration = true;
       const local = window.proofPocket.getRecords();
       const cloud = await fetchCloudRecords();
+      if (generation !== sessionGeneration) return;
       if (cloud.length) {
         if (local.length && !confirm('Cloud records were found. Replace the records currently in this browser with the cloud records? Choose Cancel to keep browser records and upload them instead.')) {
           hydration = false;
@@ -195,13 +198,16 @@
           hydration = true;
         }
       }
+      if (generation !== sessionGeneration) return;
       status.textContent = 'Signed in';
       setMessage('Signed in as ' + session.user.email + '.');
     } catch (err) {
-      status.textContent = 'Connection issue';
-      setMessage('Signed in, but cloud records could not be loaded: ' + readableError(err), true);
+      if (generation === sessionGeneration) {
+        status.textContent = 'Connection issue';
+        setMessage('Signed in, but cloud records could not be loaded: ' + readableError(err), true);
+      }
     } finally {
-      hydration = false;
+      if (generation === sessionGeneration) hydration = false;
     }
   }
   async function resetPassword() {
