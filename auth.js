@@ -168,7 +168,12 @@
 
   async function loadSession(session) {
     const generation = ++sessionGeneration;
-    userId = session && session.user ? session.user.id : null;
+    const nextUserId = session && session.user ? session.user.id : null;
+    // Keep each signed-in account's browser cache separate from local-only records and other accounts.
+    if (window.proofPocket && typeof window.proofPocket.setStorageScope === 'function') {
+      window.proofPocket.setStorageScope(nextUserId);
+    }
+    userId = nextUserId;
     updateProfile(session && session.user ? session.user : null);
     if (!userId) {
       status.textContent = 'Local only';
