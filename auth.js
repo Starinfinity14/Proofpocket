@@ -54,8 +54,8 @@
     if (/redirect|url.*not allowed|not allowed.*url/i.test(raw)) return 'Supabase rejected the redirect URL. Add https://starinfinity14.github.io/Proofpocket/ to Authentication → URL Configuration → Redirect URLs.';
     return raw;
   };
-  const toDb = r => ({
-    id: r.id, user_id: userId, name: r.name, store: r.store || '',
+  const toDb = (r, ownerId) => ({
+    id: r.id, user_id: ownerId, name: r.name, store: r.store || '',
     category: r.category || 'Other', purchase_date: r.purchaseDate || null,
     amount: r.amount === '' || r.amount == null ? null : Number(r.amount),
     return_date: r.returnDate || null, warranty_date: r.warrantyDate || null,
@@ -133,24 +133,30 @@
   }
   async function syncRecords(snapshot, deletedIds = []) {
     if (!userId || hydration) return;
-    const safe = Array.isArray(snapshot) ? snapshot : [];
+    const ownerId = userId;
+    const safe = Array.isArray(snapshot) ? snapshot.map(r => ({ ...r })) : [];
     const explicitDeletes = Array.isArray(deletedIds) ? [...new Set(deletedIds.filter(id => typeof id === 'string'))] : [];
     syncQueue = syncQueue.then(async () => {
-      if (!userId || hydration) return;
-      const rows = safe.map(toDb);
+      // A queued operation must never write to a different account after an account switch.
+      if (!ownerId || userId !== ownerId || hydration) return;
+      const rows = safe.map(r => toDb(r, ownerId));
       if (rows.length) {
         const { error } = await client.from('purchases').upsert(rows, { onConflict: 'id' });
         if (error) throw error;
       }
       if (explicitDeletes.length) {
-        const { error } = await client.from('purchases').delete().eq('user_id', userId).in('id', explicitDeletes);
+        const { error } = await client.from('purchases').delete().eq('user_id', ownerId).in('id', explicitDeletes);
         if (error) throw error;
       }
-      status.textContent = 'Synced';
-      setMessage('Your purchase records are synced to your account.');
+      if (userId === ownerId) {
+        status.textContent = 'Synced';
+        setMessage('Your purchase records are synced to your account.');
+      }
     }).catch(err => {
-      status.textContent = 'Sync issue';
-      setMessage('Cloud sync failed: ' + readableError(err), true);
+      if (userId === ownerId) {
+        status.textContent = 'Sync issue';
+        setMessage('Cloud sync failed: ' + readableError(err), true);
+      }
       console.error('ProofPocket sync failed:', err);
     });
     return syncQueue;
