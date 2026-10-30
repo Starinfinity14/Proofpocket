@@ -122,3 +122,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .onboarding-steps li{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:11px;line-height:1.45}
 .onboarding-steps li span:first-child{display:grid;place-items:center;flex:0 0 23px;width:23px;height:23px;border-radius:50%;background:#e7f0e6;color:#39744d;font-weight:800}
 @media(max-width:700px){.onboarding-panel{grid-template-columns:36px minmax(0,1fr);gap:12px;padding:16px}.onboarding-mark{width:34px;height:34px;border-radius:11px}.onboarding-steps{grid-template-columns:1fr;gap:8px;margin:13px 0}}
+
+
+/* Backup import helper */
+.import-help{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
