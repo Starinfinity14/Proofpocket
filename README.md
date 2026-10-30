@@ -66,3 +66,10 @@ node scripts/smoke-test.mjs
 - Settings includes a JSON backup import action for files exported by ProofPocket.
 - Restore validates the backup format and individual records, limits files to 5 MB, keeps existing records, and skips duplicate IDs.
 - Test restore with a copied export and confirm the imported records appear in the current local or signed-in account scope.
+
+
+### Freemium model preview
+- Free remains the default: unlimited purchase records, in-app return/warranty tracking, JSON export/restore, and optional account cloud sync.
+- Proposed Plus: family sharing, receipt attachments, automatic reminders, advanced reports/exports, and priority support.
+- Indicative beta pricing shown in the UI: ₹99/month or ₹799/year; proposal only, not a checkout or active subscription.
+- Do not remove or cap existing free features as part of this preview. Validate demand and operating costs before implementing billing or paid entitlements.
