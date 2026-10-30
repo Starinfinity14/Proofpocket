@@ -8,6 +8,7 @@
   const signIn = $('#cloud-signin');
   const signUp = $('#cloud-signup');
   const signOut = $('#cloud-signout');
+  const deleteCloudData = $('#cloud-delete-data');
   const email = $('#cloud-email');
   const password = $('#cloud-password');
   const avatar = $('.avatar');
@@ -178,11 +179,13 @@
     if (!userId) {
       status.textContent = 'Local only';
       signIn.hidden = false; signUp.hidden = false; signOut.hidden = true;
+      if (deleteCloudData) deleteCloudData.hidden = true;
       setMessage('Signed out. Your browser records remain available.');
       return;
     }
     status.textContent = 'Loading…';
     signIn.hidden = true; signUp.hidden = true; signOut.hidden = false;
+    if (deleteCloudData) deleteCloudData.hidden = false;
     try {
       hydration = true;
       const local = window.proofPocket.getRecords();
@@ -241,6 +244,29 @@
     if (error) setMessage(readableError(error), true);
     else setMessage('If confirmation is still required, a new email has been requested. Open the newest message and check spam.');
   }
+  async function deleteMyCloudRecords() {
+    if (!userId || !deleteCloudData) return;
+    const approved = confirm('Delete all purchase records for this account from ProofPocket cloud storage and this browser account cache? This cannot be undone. Your sign-in account itself will not be deleted.');
+    if (!approved) return;
+    const ownerId = userId;
+    deleteCloudData.disabled = true;
+    setMessage('Deleting your cloud purchase records…');
+    try {
+      const { error } = await client.from('purchases').delete().eq('user_id', ownerId);
+      if (error) throw error;
+      if (userId !== ownerId) throw new Error('Account changed during deletion. Please check the current account before continuing.');
+      if (window.proofPocket && typeof window.proofPocket.replaceRecords === 'function') {
+        window.proofPocket.replaceRecords([]);
+      }
+      status.textContent = 'No records';
+      setMessage('Your purchase records were deleted from this account’s cloud storage and its browser cache. Your sign-in account remains active.');
+    } catch (err) {
+      setMessage('Could not delete account records: ' + readableError(err), true);
+    } finally {
+      deleteCloudData.disabled = false;
+    }
+  }
+
   async function doSignOut() {
     setBusy(true, 'Signing out…');
     const { error } = await client.auth.signOut();
@@ -283,6 +309,7 @@
     } finally { setBusy(false); }
   });
   signOut.addEventListener('click', doSignOut);
+  if (deleteCloudData) deleteCloudData.addEventListener('click', deleteMyCloudRecords);
   const resendBtn = document.createElement('button');
   resendBtn.type = 'button';
   resendBtn.className = 'text-btn auth-helper-btn';
