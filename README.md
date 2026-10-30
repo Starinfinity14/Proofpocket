@@ -60,3 +60,9 @@ node --check auth.js
 node --check supabase-config.js
 node scripts/smoke-test.mjs
 ```
+
+
+### Backup restore
+- Settings includes a JSON backup import action for files exported by ProofPocket.
+- Restore validates the backup format and individual records, limits files to 5 MB, keeps existing records, and skips duplicate IDs.
+- Test restore with a copied export and confirm the imported records appear in the current local or signed-in account scope.
