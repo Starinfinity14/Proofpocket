@@ -16,6 +16,12 @@
     <section id="view-home" class="view active">
       <div class="welcome-row"><div><p class="eyebrow" data-i18n="familyWorkspace">YOUR HOUSEHOLD WORKSPACE</p><h1 data-i18n="homeTitle">Everything you bought. Nothing you forget.</h1><p class="subheading" data-i18n="homeSubtitle">Keep receipts, warranty details and important dates together.</p></div><button class="primary-btn" data-action="add"><span>＋</span> <span data-i18n="addPurchase">Add purchase</span></button></div>
       <div class="stats-grid"><article class="stat-card"><span class="stat-label" data-i18n="totalPurchases">Total purchases</span><strong id="stat-total">0</strong><span class="stat-foot" data-i18n="allRecords">Across your household</span><span class="stat-icon green">▤</span></article><article class="stat-card"><span class="stat-label" data-i18n="activeWarranties">Active warranties</span><strong id="stat-warranty">0</strong><span class="stat-foot" data-i18n="coveredItems">Items with warranty dates</span><span class="stat-icon blue">✓</span></article><article class="stat-card"><span class="stat-label" data-i18n="upcomingDeadlines">Upcoming deadlines</span><strong id="stat-deadlines">0</strong><span class="stat-foot" data-i18n="next30">Within the next 30 days</span><span class="stat-icon amber">◷</span></article></div>
+      <section class="quest-panel" id="quest-panel" aria-label="Progress and achievements">
+        <div class="quest-top"><div><p class="eyebrow">YOUR PROGRESS</p><h2>Turn good habits into wins</h2><p class="quest-subtitle">Every purchase you organise earns progress. Your data stays yours.</p></div><div class="level-badge"><span>LEVEL</span><strong id="quest-level">1</strong></div></div>
+        <div class="xp-row"><div><strong id="quest-rank">Getting organised</strong><span id="quest-xp-label">0 XP earned</span></div><span id="quest-next-label">100 XP to next level</span></div>
+        <div class="xp-track" role="progressbar" aria-label="Level progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="quest-progress"><span id="quest-progress-fill"></span></div>
+        <div class="quest-bottom"><div class="quest-badges" id="quest-badges"></div><div class="quest-tip" id="quest-tip">Your first quest: add a purchase to start your collection.</div></div>
+      </section>
       <div class="content-grid"><section class="panel"><div class="panel-heading"><div><h2 data-i18n="comingUp">Coming up</h2><p data-i18n="comingUpDesc">Dates worth keeping an eye on.</p></div><button class="text-btn" data-view="deadlines" data-i18n="viewAll">View all →</button></div><div id="upcoming-list" class="deadline-list"></div></section><section class="panel"><div class="panel-heading"><div><h2 data-i18n="quickStart">A calmer way to keep track</h2><p data-i18n="quickStartDesc">Start with the details you already have.</p></div></div><div class="steps"><div class="step"><span>1</span><div><strong data-i18n="step1Title">Save a purchase</strong><p data-i18n="step1Desc">Add the item, store and purchase date.</p></div></div><div class="step"><span>2</span><div><strong data-i18n="step2Title">Note important dates</strong><p data-i18n="step2Desc">Record return-by and warranty end dates.</p></div></div><div class="step"><span>3</span><div><strong data-i18n="step3Title">Take action in time</strong><p data-i18n="step3Desc">Find the details when you need to contact a seller.</p></div></div></div><button class="secondary-btn full-width" data-action="add" data-i18n="addFirstOrAnother">＋ Add a purchase</button></section></div>
       <section class="panel recent-panel"><div class="panel-heading"><div><h2 data-i18n="recentPurchases">Recent purchases</h2><p data-i18n="recentDesc">Your latest saved household items.</p></div><button class="text-btn" data-view="records" data-i18n="allRecordsLink">All records →</button></div><div id="recent-list"></div></section>
       <p class="demo-note" data-i18n="demoNote">Demo mode: records are saved only in this browser. This prototype does not upload files, send notifications or sync across devices.</p>
@@ -31,5 +37,38 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
+<script>
+(() => {
+  const host=document.getElementById('quest-panel');
+  if(!host)return;
+  const $=id=>document.getElementById(id);
+  const badgeDefs=[
+    {at:1,icon:'🌱',name:'First save',hint:'Your first purchase is organised.'},
+    {at:3,icon:'🧭',name:'On track',hint:'Three purchases in your collection.'},
+    {at:5,icon:'🛡️',name:'Warranty keeper',hint:'Five purchases safely recorded.'},
+    {at:10,icon:'🏆',name:'Home champion',hint:'Ten purchases organised.'}
+  ];
+  function update(){
+    const records=window.proofPocket?.getRecords?.()||[];
+    const count=records.length;
+    const dated=records.filter(r=>r.returnDate||r.warrantyDate).length;
+    const xp=count*100+dated*25;
+    const level=Math.floor(xp/500)+1;
+    const within=xp%500;
+    const pct=Math.round(within/500*100);
+    $('quest-level').textContent=level;
+    $('quest-rank').textContent=['Getting organised','Smart keeper','Home guardian','Deadline pro','ProofPocket legend'][Math.min(level-1,4)];
+    $('quest-xp-label').textContent=xp.toLocaleString()+' XP earned';
+    $('quest-next-label').textContent=(500-within)+' XP to next level';
+    $('quest-progress-fill').style.width=pct+'%';
+    $('quest-progress').setAttribute('aria-valuenow',String(pct));
+    $('quest-badges').innerHTML=badgeDefs.map(b=>'<span class="quest-chip '+(count>=b.at?'unlocked':'locked')+'" title="'+b.hint+'"><span>'+b.icon+'</span>'+b.name+'</span>').join('');
+    $('quest-tip').textContent=count===0?'Your first quest: add a purchase to start your collection.':dated<count?'Next quest: add a return or warranty date to one more item.':count<10?'Great progress — organise '+(10-count)+' more purchase'+(10-count===1?'':'s')+' to unlock Home champion.':'You have built a brilliant household record library. Keep it up!';
+  }
+  update();
+  window.addEventListener('proofpocket:records-changed',update);
+  window.addEventListener('storage',update);
+})();
+</script>
 <script src="auth.js"></script>
 </body></html>
