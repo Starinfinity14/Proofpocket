@@ -46,7 +46,14 @@ Deno.serve(async (req: Request) => {
 
     const { data: current, error: lookupError } = await admin.from("subscriptions")
       .select("id,last_event_created_at").eq("razorpay_subscription_id", subscription.id).maybeSingle();
-    if (lookupError) return json({ error: "Subscription lookup failed" }, 500);
+    if (lookupError) {
+      // A failed lookup must remain retryable. Otherwise Razorpay's next delivery
+      // would be treated as a duplicate even though the entitlement was never checked.
+      const { error: rollbackError } = await admin.from("razorpay_webhook_events").delete().eq("event_id", eventId);
+      if (rollbackError) console.error("Could not release webhook event for retry", rollbackError.message);
+      console.error("Subscription lookup failed", lookupError.message);
+      return json({ error: "Subscription lookup failed" }, 500);
+    }
     if (!current) return json({ received: true, ignored: true });
     if (createdAt && createdAt < Number(current.last_event_created_at || 0)) return json({ received: true, stale: true });
 
