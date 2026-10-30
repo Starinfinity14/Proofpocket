@@ -1,0 +1,7 @@
+project_id = "zvtbrzzvrowmsesykqck"
+
+[functions.create-plus-subscription]
+verify_jwt = true
+
+[functions.razorpay-webhook]
+verify_jwt = false
