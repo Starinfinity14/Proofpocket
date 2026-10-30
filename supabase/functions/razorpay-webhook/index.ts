@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
       "subscription.paused": { status: "paused", entitled: false },
       "subscription.cancelled": { status: "cancelled", entitled: false },
       "subscription.completed": { status: "completed", entitled: false },
-      "subscription.resumed": { status: "active", entitled: false },
+      "subscription.resumed": { status: "active", entitled: true },
     };
     const mapped = stateByEvent[event.event];
     if (!mapped) return json({ received: true, ignored: true });
