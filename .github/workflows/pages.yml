@@ -31,6 +31,7 @@ jobs:
         run: |
           node --check app.js
           node --check auth.js
+          node --check billing.js
           node --check supabase-config.js
       - name: Run release smoke tests
         run: node scripts/smoke-test.mjs
