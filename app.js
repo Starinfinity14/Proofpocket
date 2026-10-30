@@ -34,7 +34,7 @@
   function showView(name){if(!validViews.includes(name))return;if(viewStack[viewStack.length-1]!==name){viewStack.push(name);if(viewStack.length>30)viewStack.shift();try{history.pushState({proofPocketView:name},'',`#${name}`)}catch{}}paintView(name)}
   window.addEventListener('popstate',e=>{const target=e.state&&e.state.proofPocketView; if(target&&validViews.includes(target)){const idx=viewStack.lastIndexOf(target);viewStack=idx>=0?viewStack.slice(0,idx+1):[target]}else if(location.hash&&validViews.includes(location.hash.slice(1))){viewStack=[location.hash.slice(1)]}else{viewStack=['home']}paintView(viewStack[viewStack.length-1])});
   $('#nav-back')?.addEventListener('click',()=>{if(viewStack.length>1){history.back()}else if(viewStack[0]!=='home'){viewStack=['home'];paintView('home')}else showToast('You are already at the home screen')});
-  try{const initial=location.hash.slice(1);if(validViews.includes(initial)){viewStack=[initial];history.replaceState({proofPocketView:initial},'',`#${initial}`)}}catch{  let modalSnapshot='';
+  try{const initial=location.hash.slice(1);if(validViews.includes(initial)){viewStack=[initial];history.replaceState({proofPocketView:initial},'',`#${initial}`)}}catch{}\n  let modalSnapshot='';
   let modalReturnFocus=null;
   function formState(){return JSON.stringify([...$('#purchase-form').querySelectorAll('input,select,textarea')].map(el=>[el.id,el.value]))}
   function modalDirty(){return !$('#purchase-modal').hidden&&formState()!==modalSnapshot}
