@@ -74,3 +74,15 @@ node scripts/smoke-test.mjs
 - Proposed Plus: family sharing, receipt attachments, automatic reminders, advanced reports/exports, and priority support.
 - Indicative beta pricing shown in the UI: ₹99/month or ₹799/year; proposal only, not a checkout or active subscription.
 - Do not remove or cap existing free features as part of this preview. Validate demand and operating costs before implementing billing or paid entitlements.
+
+
+### ProofPocket Plus — Razorpay Test Mode
+- Monthly and yearly recurring subscription checkout is prepared for Razorpay Test Mode (₹99/month and ₹799/year are the configured product prices; create matching Razorpay test plans before enabling checkout).
+- Browser checkout calls the authenticated `create-plus-subscription` Edge Function. Razorpay API credentials and plan IDs belong only in Supabase Edge Function secrets.
+- `razorpay-webhook` validates the HMAC-SHA256 signature against the raw request body and records event IDs for duplicate-delivery protection.
+- The `subscriptions` table is owner-readable only; clients cannot insert or update entitlements. Plus is enabled only by verified server-side subscription lifecycle events.
+- Required Edge Function secrets: `RAZORPAY_MODE=test`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `RAZORPAY_PLAN_MONTHLY`, `RAZORPAY_PLAN_YEARLY`, and Supabase's server-side `SUPABASE_SERVICE_ROLE_KEY` (plus the standard `SUPABASE_URL` and `SUPABASE_ANON_KEY`).
+- Configure a Test Mode webhook to `https://zvtbrzzvrowmsesykqck.supabase.co/functions/v1/razorpay-webhook` and subscribe to `subscription.activated`, `subscription.charged`, `subscription.pending`, `subscription.halted`, `subscription.paused`, `subscription.cancelled`, `subscription.completed`, and `subscription.resumed`.
+- Apply `supabase/migrations/20261030000000_proofpocket_plus_billing.sql` and deploy both Edge Functions before testing checkout. These steps are intentionally not run automatically by a GitHub source change.
+- This is not a live-payment release. Do not switch `RAZORPAY_MODE` to live or use live credentials in this test build. Merchant onboarding and any real-payment activation must be handled by a legally eligible adult.
+- Run the release checks and then manually test sign-in, monthly/yearly checkout, activation, subsequent charge, failed charge, cancellation, duplicate webhook, invalid signature and account isolation. Browser checkout callbacks never unlock Plus.
