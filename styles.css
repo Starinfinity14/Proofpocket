@@ -109,3 +109,16 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Privacy policy link in settings */
 .privacy-page-link{color:#286641;font-size:12px;font-weight:750;text-underline-offset:3px}
+
+
+/* First-run onboarding guide */
+.onboarding-panel{display:grid;grid-template-columns:48px minmax(0,1fr);gap:17px;margin:0 0 20px;padding:21px 23px;border:1px solid #dce9dd;border-radius:16px;background:linear-gradient(120deg,#f5faf4,#fff)}
+.onboarding-panel[hidden]{display:none}
+.onboarding-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#e4f1e4;color:#39744d;font-size:22px}
+.onboarding-content{min-width:0}
+.onboarding-content h2{margin:3px 0 6px;font-size:18px;letter-spacing:-.35px;color:var(--ink)}
+.onboarding-content>p:not(.eyebrow){max-width:680px;margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.onboarding-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0;padding:0;list-style:none}
+.onboarding-steps li{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:11px;line-height:1.45}
+.onboarding-steps li span:first-child{display:grid;place-items:center;flex:0 0 23px;width:23px;height:23px;border-radius:50%;background:#e7f0e6;color:#39744d;font-weight:800}
+@media(max-width:700px){.onboarding-panel{grid-template-columns:36px minmax(0,1fr);gap:12px;padding:16px}.onboarding-mark{width:34px;height:34px;border-radius:11px}.onboarding-steps{grid-template-columns:1fr;gap:8px;margin:13px 0}}
