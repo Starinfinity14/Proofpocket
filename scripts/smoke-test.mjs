@@ -24,6 +24,11 @@ for (const behavior of [
 assert.ok(auth.includes("from('purchases')"), 'Cloud purchases table integration missing');
 assert.ok(auth.includes('signInWithPassword'), 'Sign-in handler missing');
 assert.ok(css.includes('.modal-backdrop[hidden]'), 'Hidden modal style missing');
+assert.match(html, /role="dialog" aria-modal="true"[^>]*tabindex="-1"/, 'Purchase dialog needs a programmatic focus fallback');
+assert.ok(app.includes("if(e.key!=='Tab')return;"), 'Purchase dialog must manage keyboard Tab navigation');
+assert.ok(app.includes("last.focus()") && app.includes("first.focus()"), 'Purchase dialog must keep keyboard focus inside the dialog');
+assert.ok(app.includes("if(e.key==='Escape'){e.preventDefault();closeModal();return}"), 'Escape must close the purchase dialog');
+
 assert.ok(config.includes('publishableKey'), 'Supabase publishable key config missing');
 assert.ok(app.includes('const previous=records;if(existing)records=records.map(r=>r.id===editId?item:r);else records.push(item);if(!persist()){records=previous;render();return}'), 'Failed add/edit saves must roll back in-memory records');
 assert.ok(app.includes('if(!persist({deletedIds:[deletedId]})){records=previous;render();return}'), 'Failed single-record deletes must roll back');
