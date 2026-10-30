@@ -10,7 +10,7 @@ A responsive household purchase organizer for purchase details, return-by dates 
 - Dashboard totals, recent records and progress badges.
 - Local-first storage when signed out.
 - Optional Supabase email/password authentication and per-user cloud sync.
-- JSON export and local-data deletion.
+- JSON export, local-data deletion, and a signed-in control to delete that account’s cloud purchase records (the authentication account itself is not deleted).
 - Responsive desktop and mobile layouts.
 
 ## Run locally
@@ -28,7 +28,7 @@ Before public launch:
 2. Enable email confirmation and test the confirmation and password-reset flows.
 3. Add the production site URL and redirect URL to Supabase Authentication → URL Configuration.
 4. Confirm the purchases table grants authenticated access and has the required RLS policies.
-5. Test sign-up, sign-in, sign-out, account switching, sync failure and offline/local-only use.
+5. Test sign-up, sign-in, sign-out, account switching, sync failure, offline/local-only use, and the delete-my-cloud-records confirmation flow.
 
 ## GitHub Pages deployment
 
