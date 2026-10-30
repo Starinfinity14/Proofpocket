@@ -47,6 +47,7 @@ assert.ok(migration.includes('razorpay_webhook_events') && migration.includes('r
 assert.ok(checkout.includes('RAZORPAY_MODE') && checkout.includes('!== "test"'), 'Checkout must refuse non-test mode');
 assert.ok(checkout.includes('auth.getUser(token)') && checkout.includes('RAZORPAY_KEY_SECRET'), 'Checkout must authenticate users and keep Razorpay secret server-side');
 assert.ok(webhook.includes('x-razorpay-signature') && webhook.includes('crypto.subtle') && webhook.includes('x-razorpay-event-id'), 'Webhook must verify signature and deduplicate events');
+assert.ok(webhook.includes('if (lookupError)') && webhook.includes('Could not release webhook event for retry') && webhook.includes("from(\'razorpay_webhook_events\').delete()"), 'Failed subscription lookups must release the event ID so webhook delivery can retry');
 assert.ok(webhook.includes('"subscription.activated"') && webhook.includes('"subscription.charged"') && webhook.includes('plus_entitled'), 'Entitlement must be updated from subscription webhooks');
 assert.ok(billing.includes('create-plus-subscription') && /waiting for the signed Razorpay webhook/i.test(billing), 'Browser callback must not directly grant Plus');
 assert.ok(!html.includes('RAZORPAY_KEY_SECRET') && !billing.includes('RAZORPAY_KEY_SECRET'), 'Razorpay secret must not appear in browser code');
