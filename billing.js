@@ -83,7 +83,7 @@
   }
   monthly.addEventListener('click', () => start('monthly'));
   yearly.addEventListener('click', () => start('yearly'));
-  client.auth.onAuthStateChange(() => { refresh().catch(() => {}); });
+  client.auth.onAuthStateChange(() => { setTimeout(() => refresh().catch(() => {}), 0); });
   refresh().catch(() => {});
   window.addEventListener('focus', () => refresh().catch(() => {}));
   window.proofPocketBillingRefresh = refresh;
