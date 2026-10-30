@@ -12,6 +12,7 @@ A responsive household purchase organizer for purchase details, return-by dates 
 - Optional Supabase email/password authentication and per-user cloud sync.
 - JSON export, local-data deletion, and a signed-in control to delete that account’s cloud purchase records (the authentication account itself is not deleted).
 - Responsive desktop and mobile layouts.
+- Keyboard-accessible purchase dialog with focus containment, Escape-to-close, and focus restoration.
 
 ## Run locally
 
