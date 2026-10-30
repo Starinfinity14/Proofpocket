@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f8f5">
+<meta name="description" content="Learn what ProofPocket stores, how optional cloud sync works, and how to manage your information.">
+<title>Privacy Policy — ProofPocket</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.policy-shell{width:min(820px,calc(100% - 32px));margin:0 auto;padding:34px 0 60px}
+.policy-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:34px}
+.policy-brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink);text-decoration:none}
+.policy-brand .brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--green);color:#fff}
+.policy-card{padding:clamp(20px,5vw,42px);background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 38px #1b33200a}
+.policy-card h1{font-size:clamp(28px,5vw,40px);letter-spacing:-1.2px;margin:6px 0 10px}
+.policy-card h2{font-size:17px;margin:28px 0 9px}
+.policy-card p,.policy-card li{font-size:13px;line-height:1.75;color:#58675e}
+.policy-card ul{padding-left:21px}
+.policy-meta{font-size:11px;color:var(--muted)}
+.policy-callout{margin:20px 0;padding:14px 16px;border:1px solid #dce9dd;border-radius:12px;background:#f7fbf6}
+.policy-callout p{margin:0}
+.policy-back{display:inline-flex;text-decoration:none}
+.policy-card a{color:#286641;text-underline-offset:3px}
+@media(max-width:600px){.policy-shell{padding-top:20px}.policy-top{margin-bottom:20px}}
+</style>
+</head>
+<body>
+<main class="policy-shell">
+  <header class="policy-top">
+    <a class="policy-brand" href="./" aria-label="ProofPocket home"><span class="brand-mark">P</span><span>ProofPocket</span></a>
+    <a class="secondary-btn policy-back" href="./">← Back to app</a>
+  </header>
+  <article class="policy-card">
+    <p class="eyebrow">PRIVACY &amp; DATA</p>
+    <h1>Privacy Policy</h1>
+    <p class="policy-meta">Last updated: 30 October 2026</p>
+    <div class="policy-callout"><p><strong>In short:</strong> ProofPocket stores purchase details in your browser when you are signed out. If you choose to sign in, the app can sync those records with its Supabase cloud database. It does not currently upload receipts or send automatic reminders.</p></div>
+
+    <h2>1. Information you may enter</h2>
+    <p>When you use ProofPocket, you may enter item names, store or seller names, categories, purchase dates, amounts, return-by dates, warranty dates and optional notes. Please do not enter passwords, payment-card numbers, identity-document details or other highly sensitive information.</p>
+
+    <h2>2. Where information is stored</h2>
+    <ul>
+      <li><strong>Signed out:</strong> records are stored in your browser's local storage on that device. They are not automatically available on another device.</li>
+      <li><strong>Signed in:</strong> records can be synced to the ProofPocket Supabase project. The app uses email/password authentication and associates cloud purchase rows with the signed-in account.</li>
+      <li><strong>Language preference:</strong> your selected app language is saved in browser storage.</li>
+      <li><strong>Export:</strong> you can download a JSON file of records available in the app. The downloaded file is stored wherever your device saves downloads.</li>
+    </ul>
+    <p>Cloud sync requires an internet connection and correct service configuration. Do not assume a record has synced unless the app reports a successful sync.</p>
+
+    <h2>3. Service providers and network requests</h2>
+    <p>The app is hosted as a static website using GitHub Pages. It loads the Supabase JavaScript library from jsDelivr. When you use account features, your browser communicates with Supabase for authentication and purchase-record sync. Those providers process technical request data under their own terms and privacy policies.</p>
+    <p>ProofPocket does not currently advertise, sell purchase records, or intentionally use purchase details for targeted advertising. This statement does not cover data practices of the hosting, content-delivery or cloud service providers.</p>
+
+    <h2>4. Sharing</h2>
+    <p>ProofPocket does not provide a feature for sharing your purchase records with other users. Cloud records should be protected by the database's row-level security policies so that each signed-in account can access only its own rows. Security also depends on correct project configuration and should be independently checked before a wider launch.</p>
+
+    <h2>5. Your choices and deleting information</h2>
+    <ul>
+      <li>You can edit or delete individual records in the app.</li>
+      <li>You can export records before clearing local browser data.</li>
+      <li>Clearing local records removes the browser copy; it does not necessarily delete a separate cloud copy.</li>
+      <li>Signing out does not delete records already stored in your browser or in the cloud.</li>
+      <li>To request help with account or cloud-data deletion, use the <a href="https://github.com/Starinfinity14/Proofpocket/issues/new?title=Privacy%20or%20data%20request" target="_blank" rel="noopener noreferrer">ProofPocket privacy request page</a>. Do not post private account details or sensitive information in a public issue.</li>
+    </ul>
+
+    <h2>6. Retention and security</h2>
+    <p>Local records remain in browser storage until you delete them or clear the browser's site data. Cloud records may remain in the database until they are deleted through an available product or administrative process. No online service can promise perfect security. Use a device you trust, keep it protected, and avoid storing sensitive information in notes.</p>
+
+    <h2>7. Children and family use</h2>
+    <p>ProofPocket is a household purchase organizer, not a service designed to collect children's personal information. If you are under the age required to create an online account in your location, ask a parent or guardian to help before creating an account.</p>
+
+    <h2>8. Changes to this policy</h2>
+    <p>This policy may be updated as features and service providers change. The latest version will be published on this page with an updated date.</p>
+
+    <h2>9. Contact</h2>
+    <p>For privacy questions or data requests, contact the project through the <a href="https://github.com/Starinfinity14/Proofpocket/issues/new?title=Privacy%20or%20data%20request" target="_blank" rel="noopener noreferrer">ProofPocket GitHub request page</a>. Do not include passwords, authentication codes, purchase details or other private data in a public issue.</p>
+    <p class="policy-meta">This page explains the current app behavior in plain language. It is not legal advice or a substitute for a jurisdiction-specific legal review before a public commercial launch.</p>
+  </article>
+</main>
+</body>
+</html>
