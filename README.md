@@ -72,7 +72,7 @@ node scripts/smoke-test.mjs
 ### Freemium model preview
 - Free remains the default: unlimited purchase records, in-app return/warranty tracking, JSON export/restore, and optional account cloud sync.
 - Proposed Plus: family sharing, receipt attachments, automatic reminders, advanced reports/exports, and priority support.
-- Indicative beta pricing shown in the UI: ₹99/month or ₹799/year; proposal only, not a checkout or active subscription.
+- Proposed revised Plus pricing: ₹149/month or ₹1,199/year, reflecting the planned encrypted personal document vault. These prices are proposals, not active offers. Razorpay Test Mode plan IDs and server secrets must be updated to matching amounts before checkout is re-enabled.
 - Do not remove or cap existing free features as part of this preview. Validate demand and operating costs before implementing billing or paid entitlements.
 
 
@@ -94,3 +94,12 @@ node scripts/smoke-test.mjs
 - Storage objects are private and restricted to the authenticated user's UUID folder.
 - This migration is committed to the feature branch but has **not** been applied to the Supabase project. Apply it only after reviewing the migration and confirming the existing `purchases` table uses UUID IDs and has `user_id` ownership.
 - This is the backend foundation, not a claim that receipt upload, household invitations, or scheduled email delivery are already available in the UI.
+
+
+### Plus encrypted document vault (Patch #12)
+- Added a private `proofpocket-vault` bucket restricted to authenticated Plus subscribers and each user's UUID folder.
+- Added owner-scoped vault metadata with a 10 MB ciphertext limit and versioned encryption marker.
+- Intended design: encrypt document bytes in the browser before upload; the server stores ciphertext, not plaintext. Do not upload documents until client-side encryption, key recovery, and deletion flows are implemented and reviewed.
+- Document names and categories are metadata and can still reveal information; use neutral labels. This is not an official DigiLocker integration and does not verify government-issued documents.
+- Proposed Plus price updated in the UI to ₹149/month or ₹1,199/year. Checkout is disabled until matching Razorpay Test Mode plans and server-side plan IDs are configured. No live billing changes have been made.
+- The vault migration depends on the Plus billing schema and has not been applied to Supabase.
