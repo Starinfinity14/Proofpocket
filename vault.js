@@ -11,7 +11,7 @@
   let entitled = false;
   let busy = false;
   const status = (msg, error=false) => { $('vault-status').textContent=msg; $('vault-status').style.color=error?'#a63b32':''; };
-  const b64 = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes)));
+  const b64 = bytes => { const data=new Uint8Array(bytes); let binary=''; for(let i=0;i<data.length;i+=0x8000) binary+=String.fromCharCode(...data.subarray(i,i+0x8000)); return btoa(binary); };
   const unb64 = value => Uint8Array.from(atob(value), c=>c.charCodeAt(0));
   async function derive(passphrase,salt){
     const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(passphrase),'PBKDF2',false,['deriveKey']);
