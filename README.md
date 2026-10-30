@@ -86,3 +86,11 @@ node scripts/smoke-test.mjs
 - Apply `supabase/migrations/20261030000000_proofpocket_plus_billing.sql` and deploy both Edge Functions before testing checkout. These steps are intentionally not run automatically by a GitHub source change.
 - This is not a live-payment release. Do not switch `RAZORPAY_MODE` to live or use live credentials in this test build. Merchant onboarding and any real-payment activation must be handled by a legally eligible adult.
 - Run the release checks and then manually test sign-in, monthly/yearly checkout, activation, subsequent charge, failed charge, cancellation, duplicate webhook, invalid signature and account isolation. Browser checkout callbacks never unlock Plus.
+
+
+### Household features foundation (Patch #11)
+- Added a private `proofpocket-receipts` Storage bucket with a 5 MB limit and JPEG, PNG, WebP and PDF allowlist.
+- Added owner-scoped receipt metadata, household and membership tables, and per-user reminder preferences.
+- Storage objects are private and restricted to the authenticated user's UUID folder.
+- This migration is committed to the feature branch but has **not** been applied to the Supabase project. Apply it only after reviewing the migration and confirming the existing `purchases` table uses UUID IDs and has `user_id` ownership.
+- This is the backend foundation, not a claim that receipt upload, household invitations, or scheduled email delivery are already available in the UI.
