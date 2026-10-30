@@ -149,3 +149,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .plan-interest{margin-top:auto;text-decoration:none}
 .plan-disclaimer{margin:14px 0 0;color:var(--muted);font-size:10px;line-height:1.55}
 @media(max-width:650px){.plan-panel{padding:16px}.plan-heading{flex-direction:column;gap:8px}.plan-grid{grid-template-columns:1fr}}
+
+/* ProofPocket Plus test subscription controls */
+.plus-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto;width:100%}
+.plus-actions button{flex:1;justify-content:center;min-height:42px}
+.plus-status{margin:13px 0 4px;color:var(--ink);font-size:12px;font-weight:800}
+.plus-message{margin:0;color:var(--muted);font-size:10px;line-height:1.55}
+.plus-actions button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:650px){.plus-actions{flex-direction:column}.plus-actions button{width:100%}}
