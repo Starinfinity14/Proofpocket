@@ -1,41 +1,62 @@
-# ProofPocket — household purchase organizer prototype
+# ProofPocket
 
-A responsive, bilingual (English/Hindi) browser prototype for tracking household purchases, return-by dates and warranty end dates.
+A responsive household purchase organizer for purchase details, return-by dates and warranty deadlines. The app supports English and Hindi, local browser storage, JSON export, and optional Supabase account sync.
 
-## Run it
+## Included functionality
 
-No package installation, API key, paid AI builder, backend or build step is required.
+- Add, edit and delete purchase records.
+- Search records and filter by category.
+- Track return and warranty dates, including past-due dates.
+- Dashboard totals, recent records and progress badges.
+- Local-first storage when signed out.
+- Optional Supabase email/password authentication and per-user cloud sync.
+- JSON export and local-data deletion.
+- Responsive desktop and mobile layouts.
 
-1. Extract this folder.
-2. Open `index.html` in a modern browser, or serve this folder with any static HTTP server.
-3. Add sample purchases and test the Overview, My records, Deadlines, and Settings & privacy views.
+## Run locally
 
-## Features implemented
+Open `index.html` in a modern browser, or serve this folder with a static HTTP server. No frontend build step is required.
 
-- Responsive desktop/mobile layout.
-- English and Hindi UI labels.
-- Create, edit and delete purchase records.
-- Item, seller, category, purchase date, amount, return date, warranty end date and notes.
-- Search by item, store, category and notes; category filter.
-- Upcoming and past deadline views.
-- Dashboard counts for purchases, active warranties and deadlines within 30 days.
-- Local browser storage, JSON export and local data deletion.
-- Basic input validation and output escaping.
+## Supabase setup
 
-## Important limitations
+The browser uses the Supabase publishable key in `supabase-config.js`. A publishable key is designed for public clients; **never place a Supabase secret or service-role key in this file**.
 
-This is a **prototype, not a production document vault**. Data is stored in the current browser's local storage. It does not upload invoice files, provide accounts, sync across devices, send automatic notifications, connect to retailers, or use a cloud database. Do not use it to store sensitive information or as the only copy of important records. Clearing browser data can remove records. The amount field currently formats values as INR; international currencies are not yet configurable. The browser language setting is remembered locally.
+The Supabase project must have the `public.purchases` table and row-level security policies that restrict SELECT, INSERT, UPDATE and DELETE to rows whose `user_id` equals `auth.uid()`. Do not disable RLS to make sync work.
 
-## Next engineering stage
+Before public launch:
+1. Enable leaked-password protection in Supabase Auth.
+2. Enable email confirmation and test the confirmation and password-reset flows.
+3. Add the production site URL and redirect URL to Supabase Authentication → URL Configuration.
+4. Confirm the purchases table grants authenticated access and has the required RLS policies.
+5. Test sign-up, sign-in, sign-out, account switching, sync failure and offline/local-only use.
 
-1. Add a test suite and CI workflow.
-2. Add a backend only after validating the workflow, using authentication, row-level security and private object storage.
-3. Implement signed download URLs, file size/type checks, ownership tests, export/delete workflows and security review before handling real documents.
-4. Add locale-aware currency selection and properly reviewed translations.
-5. Validate demand with interviews/usability sessions and a simple landing-page test before adding subscriptions or AI.
+## GitHub Pages deployment
 
-## Files
+The GitHub Actions workflow in `.github/workflows/pages.yml` runs JavaScript syntax checks and release smoke tests on pushes to `main` and `feature/supabase-auth-sync`, and on pull requests into `main`. It deploys only from `main`.
 
-- `index.html` — accessible page structure and modal form
-- `styles.css` — responsive UI
-- `app.js` — browser-only state and interactions
+To enable deployment:
+1. In the repository, open **Settings → Pages**.
+2. Set **Build and deployment → Source** to **GitHub Actions**.
+3. Merge the reviewed release branch into `main`.
+4. Open **Actions → ProofPocket CI and Pages** and confirm both verification and deployment jobs pass.
+
+The expected project-site URL is `https://starinfinity14.github.io/Proofpocket/`. It becomes a valid preview/production URL only after GitHub Pages has been configured and the deployment workflow succeeds.
+
+## Known limitations
+
+- Receipt/image upload is not implemented.
+- Automatic push/email reminders are not implemented; deadlines are displayed in the app.
+- Cloud sync requires internet access and a correctly configured Supabase project.
+- Local-only records remain in that browser and are not automatically transferred to an account.
+- This app is not a secure document vault. Do not store passwords, payment-card details, identity documents or other highly sensitive information.
+- A successful static deployment does not by itself prove the Supabase authentication and sync flows are configured correctly; test those separately before inviting users.
+
+## Release checks
+
+Run:
+```sh
+node --check app.js
+node --check auth.js
+node --check supabase-config.js
+node scripts/smoke-test.mjs
+```
