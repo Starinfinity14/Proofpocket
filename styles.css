@@ -51,3 +51,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .profile-menu{right:8px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Purchase editor: clearer hierarchy and comfortable mobile form controls */
+.modal{border:1px solid #e7eee7}
+.modal-heading{padding-bottom:15px;border-bottom:1px solid var(--line)}
+.form-grid{row-gap:17px}
+.field{line-height:1.35}
+.field input,.field select,.field textarea{min-height:44px;transition:border-color .18s ease,box-shadow .18s ease}
+.field textarea{min-height:92px}
+.modal-actions{position:sticky;bottom:-26px;padding:14px 0 2px;background:linear-gradient(180deg,#ffffffed,#fff 28%);border-top:1px solid #edf0ec}
+.form-error:not(:empty){background:#fff2ef;border:1px solid #f2d6d1;border-radius:9px;padding:9px 11px}
+@media(max-width:700px){
+ .modal{max-height:calc(100dvh - 20px);padding:18px}
+ .modal-heading{margin-bottom:17px}
+ .modal-actions{bottom:-18px;gap:8px}
+ .modal-actions button{flex:1;justify-content:center;min-height:44px}
+ .field input,.field select,.field textarea{font-size:16px}
+}
