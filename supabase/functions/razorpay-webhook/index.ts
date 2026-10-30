@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
       "subscription.paused": { status: "paused", entitled: false },
       "subscription.cancelled": { status: "cancelled", entitled: false },
       "subscription.completed": { status: "completed", entitled: false },
-      "subscription.resumed": { status: "active", entitled: true },
+      "subscription.resumed": { status: "active", entitled: false },
     };
     const mapped = stateByEvent[event.event];
     if (!mapped) return json({ received: true, ignored: true });
@@ -73,6 +73,7 @@ Deno.serve(async (req: Request) => {
       updated_at: new Date().toISOString(),
     }).eq("id", current.id);
     if (updateError) {
+      await admin.from("razorpay_webhook_events").delete().eq("event_id", eventId);
       console.error("Subscription update failed", updateError.message);
       return json({ error: "Could not update subscription" }, 500);
     }
