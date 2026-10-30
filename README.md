@@ -103,3 +103,12 @@ node scripts/smoke-test.mjs
 - Document names and categories are metadata and can still reveal information; use neutral labels. This is not an official DigiLocker integration and does not verify government-issued documents.
 - Proposed Plus price updated in the UI to ₹149/month or ₹1,199/year. Checkout is disabled until matching Razorpay Test Mode plans and server-side plan IDs are configured. No live billing changes have been made.
 - The vault migration depends on the Plus billing schema and has not been applied to Supabase.
+
+
+### Plus Vault interface implementation
+- Added a dedicated Plus Vault view to desktop and mobile navigation.
+- Added browser-side AES-256-GCM encryption with a per-file random salt and IV; the passphrase is expanded with PBKDF2-SHA-256 (310,000 iterations) and is not uploaded or persisted by the app.
+- Added encrypted upload, listing, decrypt-and-download, and deletion flows using the private `proofpocket-vault` bucket and Plus entitlement check.
+- Client file limit is 7 MB to allow for base64 envelope overhead under the 10 MB encrypted-object storage cap. Supported input types: PDF, JPEG, PNG and WebP.
+- The file name and category remain metadata in Supabase; document contents are encrypted. Avoid descriptive filenames if that metadata is sensitive.
+- **Not release-ready yet:** apply the billing and vault migrations in dependency order; verify bucket policies, entitlement revocation, storage cleanup, passphrase-loss messaging, and end-to-end encryption/decryption on real test accounts before enabling the feature for customers. No formal security audit has been completed.
