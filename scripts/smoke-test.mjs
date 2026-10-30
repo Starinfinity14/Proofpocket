@@ -25,5 +25,5 @@ assert.ok(auth.includes("from('purchases')"), 'Cloud purchases table integration
 assert.ok(auth.includes('signInWithPassword'), 'Sign-in handler missing');
 assert.ok(css.includes('.modal-backdrop[hidden]'), 'Hidden modal style missing');
 assert.ok(config.includes('publishableKey'), 'Supabase publishable key config missing');
-assert.ok(!/(?:service_role|sb_secret_)\\s*[:=]\\s*['\"][^'\"]+/i.test(config), 'A Supabase secret/service-role key must never be shipped to browsers');
+assert.ok(!/(?:service_role|sb_secret_)\s*[:=]\s*['\"][^'\"]+/i.test(config), 'A Supabase secret/service-role key must never be shipped to browsers');
 console.log('ProofPocket release smoke tests passed.');
