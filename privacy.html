@@ -56,7 +56,10 @@
     <h2>4. Reminders</h2>
     <p>The development version supports optional browser notifications for return and warranty dates. You choose the lead times and grant notification permission. These alerts are checked while the app is open; they are not background push notifications and are not guaranteed when the browser or app is closed. Preferences may be stored locally and, after the household migration is applied, synced to your account. No email or SMS reminders are sent.</p>
 
-    <h2>5. Receipt attachments</h2>\n    <p>The receipt feature is implemented in the development branch but is not active until the household database migration is applied. When enabled, supported PDF and image files up to 5 MB can be attached to a cloud-synced purchase. Files are stored in private Supabase Storage, not encrypted end-to-end by ProofPocket, and can be downloaded using short-lived signed links. Deleting an attachment removes its stored object and metadata. Avoid uploading highly sensitive documents.</p>\n\n    <h2>6. Sharing</h2>
+    <h2>5. Receipt attachments</h2>
+    <p>The receipt feature is implemented in the development branch but is not active until the household database migration is applied. When enabled, supported PDF and image files up to 5 MB can be attached to a cloud-synced purchase. Files are stored in private Supabase Storage, not encrypted end-to-end by ProofPocket, and can be downloaded using short-lived signed links. Deleting an attachment removes its stored object and metadata. Avoid uploading highly sensitive documents.</p>
+
+    <h2>6. Sharing</h2>
     <p>ProofPocket does not provide a feature for sharing your purchase records with other users. Cloud records should be protected by the database's row-level security policies so that each signed-in account can access only its own rows. Security also depends on correct project configuration and should be independently checked before a wider launch.</p>
 
     <h2>7. Your choices and deleting information</h2>
