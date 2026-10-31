@@ -53,6 +53,24 @@ assert.ok(checkout.includes('auth.getUser(token)') && checkout.includes('RAZORPA
 assert.ok(webhook.includes('x-razorpay-signature') && webhook.includes('crypto.subtle') && webhook.includes('x-razorpay-event-id'), 'Webhook must verify signature and deduplicate events');
 assert.ok(webhook.includes('if (lookupError)') && webhook.includes('Could not release webhook event for retry') && webhook.includes('from("razorpay_webhook_events").delete()'), 'Failed subscription lookups must release the event ID so webhook delivery can retry');
 assert.ok(webhook.includes('"subscription.activated"') && webhook.includes('"subscription.charged"') && webhook.includes('plus_entitled'), 'Entitlement must be updated from subscription webhooks');
+const duplicateGuard = webhook.indexOf('if (eventError.code === "23505")');
+assert.ok(duplicateGuard >= 0 && webhook.slice(duplicateGuard, duplicateGuard + 180).includes('duplicate: true'), 'Repeated Razorpay event IDs must return a duplicate acknowledgement without reapplying entitlement');
+const lookupFailureBlock = webhook.slice(webhook.indexOf('if (lookupError)'), webhook.indexOf('if (!current)'));
+assert.ok(lookupFailureBlock.indexOf('from("razorpay_webhook_events").delete()') >= 0 && lookupFailureBlock.indexOf('from("razorpay_webhook_events").delete()') < lookupFailureBlock.indexOf('return json({ error: "Subscription lookup failed" }, 500)'), 'Lookup failures must release the event ID before returning a retryable 500');
+for (const [eventName, status, entitled] of [
+  ['subscription.activated', 'active', true],
+  ['subscription.charged', 'active', true],
+  ['subscription.resumed', 'active', true],
+  ['subscription.pending', 'pending', false],
+  ['subscription.halted', 'halted', false],
+  ['subscription.paused', 'paused', false],
+  ['subscription.cancelled', 'cancelled', false],
+  ['subscription.completed', 'completed', false],
+]) {
+  const mapping = new RegExp('"' + eventName.replaceAll('.', '\\\\.') + '"\\s*:\\s*\\{\\s*status:\\s*"' + status + '",\\s*entitled:\\s*' + entitled + '\\s*\\}');
+  assert.match(webhook, mapping, 'Incorrect Plus entitlement mapping for ' + eventName);
+}
+assert.ok(webhook.includes('plus_entitled: mapped.entitled'), 'Persisted Plus entitlement must follow the verified subscription event mapping');
 assert.ok(billing.includes('create-plus-subscription') && /waiting for the signed Razorpay webhook/i.test(billing), 'Browser callback must not directly grant Plus');
 assert.ok(!html.includes('RAZORPAY_KEY_SECRET') && !billing.includes('RAZORPAY_KEY_SECRET'), 'Razorpay secret must not appear in browser code');
 console.log('ProofPocket Plus source checks passed.');
