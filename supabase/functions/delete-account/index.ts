@@ -137,6 +137,24 @@ Deno.serve(async (req: Request) => {
       }, 409);
     }
 
+    // Validate both private buckets before removing anything. This avoids a
+    // partial cleanup when one bucket is missing or accidentally public.
+    const { data: buckets, error: bucketsError } = await admin.storage.listBuckets();
+    if (bucketsError) {
+      console.error("Account deletion bucket preflight failed", bucketsError.message);
+      return json(req, { error: "Could not verify private storage. No files were deleted." }, 500);
+    }
+    for (const bucketId of ["proofpocket-receipts", "proofpocket-vault"]) {
+      const bucket = buckets?.find((item) => item.id === bucketId);
+      if (!bucket || bucket.public) {
+        console.error("Account deletion bucket unavailable or public", bucketId);
+        return json(req, {
+          error: "Required private storage is not ready. No files were deleted.",
+          code: "PRIVATE_STORAGE_PREFLIGHT_FAILED",
+        }, 503);
+      }
+    }
+
     // Storage is cleaned before auth deletion. A failure stops the workflow and
     // leaves the account intact; retries are safe because removal is idempotent.
     const removed = {
