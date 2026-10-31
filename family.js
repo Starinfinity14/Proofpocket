@@ -37,5 +37,6 @@ members?.addEventListener('click',e=>{const b=e.target.closest('[data-remove-mem
 shared?.addEventListener('click',e=>{const b=e.target.closest('[data-unshare]');if(!b)return;run(async()=>{if(!confirm('Stop sharing this purchase with the household?'))return;await rpc('unshare_household_purchase',{p_household_id:household.id,p_purchase_id:b.dataset.unshare})})});
 db.auth.onAuthStateChange(()=>{setTimeout(()=>refresh().catch(e=>say(e.message,true)),0)});
 document.querySelector('[data-view="family"]')?.addEventListener('click',()=>refresh().catch(e=>say(e.message,true)));
-window.addEventListener('proofpocket:records-changed',populatePurchaseOptions);\nrefresh().catch(e=>say(e.message||'Could not load household.',true));
+window.addEventListener('proofpocket:records-changed',populatePurchaseOptions);
+refresh().catch(e=>say(e.message||'Could not load household.',true));
 })();
