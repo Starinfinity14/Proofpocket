@@ -32,6 +32,9 @@ Before public launch:
 5. Test sign-up, sign-in, sign-out, account switching, sync failure, offline/local-only use, and the delete-my-cloud-records confirmation flow.
 6. In Supabase Edge Function secrets, set `ALLOWED_ORIGINS` to a comma-separated list of exact trusted app origins (origins only, no paths), for example `https://starinfinity14.github.io`. Add any separately verified custom production origin when it exists. Do not use `*`. If unset, browser-origin checkout requests are denied; requests without an Origin header still require a valid authenticated user JWT.
 7. Keep `RAZORPAY_MODE=test` for this branch and verify checkout only with Razorpay Test Mode credentials. Do not add production credentials during this test phase.
+8. Before enabling Test Mode webhook traffic, verify a valid signed event is accepted, an invalid signature is rejected, duplicate event IDs do not reapply entitlement, older events cannot overwrite newer subscription state, and transient database failures return a retryable 5xx response.
+9. Confirm the Razorpay webhook endpoint is configured with the exact deployed Edge Function URL and the same Test Mode webhook secret stored in `RAZORPAY_WEBHOOK_SECRET`. Never paste the secret into browser code, commits, issues, or chat.
+
 
 ## GitHub Pages deployment
 
