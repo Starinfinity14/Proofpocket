@@ -160,3 +160,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Plus encrypted document vault */
 .vault-panel{max-width:900px}.vault-warning{padding:15px;border:1px solid #f0dfb8;background:#fff9eb;border-radius:12px;margin:0 0 18px}.vault-warning strong{font-size:13px}.vault-warning p{font-size:12px;line-height:1.6;color:#705b32;margin:6px 0 0}.vault-form{margin:16px 0 8px}.vault-help{font-size:11px;color:var(--muted);margin:8px 0 16px}#vault-status{font-size:12px;margin:15px 0}.vault-list{display:grid;gap:10px}.vault-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px;border:1px solid var(--line);border-radius:12px}.vault-row strong{font-size:13px;overflow-wrap:anywhere}.vault-row p{font-size:11px;color:var(--muted);margin:5px 0 0}.vault-actions{display:flex;gap:7px;flex-wrap:wrap}.vault-actions button{font-size:11px;padding:9px 11px}.vault-panel hr{border:0;border-top:1px solid var(--line);margin:22px 0}.vault-panel [hidden]{display:none!important}@media(max-width:620px){.vault-row{align-items:flex-start;flex-direction:column}.vault-actions{width:100%}.vault-actions button{flex:1}}
+
+
+/* Purchase receipt attachments */
+.receipt-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0 52px;padding-top:10px;border-top:1px solid var(--line,#e7e9e4)}
+.receipt-tools button,.receipt-entry button{border:1px solid var(--line,#dfe3dc);background:#fff;border-radius:8px;padding:7px 10px;font:inherit;font-size:12px;cursor:pointer;color:inherit}
+.receipt-tools button:disabled,.receipt-entry button:disabled{opacity:.55;cursor:wait}
+.receipt-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0 52px}
+.receipt-entry{display:flex;align-items:center;gap:6px;max-width:100%;padding:5px 7px;border:1px solid var(--line,#e7e9e4);border-radius:8px;font-size:12px}
+.receipt-entry span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.receipt-status{font-size:12px;color:var(--muted,#667067);margin:6px 0 0 52px}
+@media(max-width:600px){.receipt-tools,.receipt-list,.receipt-status{margin-left:0}.receipt-entry span{max-width:125px}}
