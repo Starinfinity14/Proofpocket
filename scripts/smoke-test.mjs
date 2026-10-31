@@ -155,7 +155,7 @@ for (const marker of [
   'auth.admin.deleteUser', 'household_members', 'owner_id', 'return json'
 ]) assert.ok(accountDeletion.includes(marker), 'Account deletion safety marker missing: ' + marker);
 assert.ok(accountDeletion.indexOf('storage.from(bucket).remove') < accountDeletion.indexOf('auth.admin.deleteUser'), 'Storage cleanup must occur before auth account deletion');
-assert.ok(accountDeletion.includes('if (ownedHouseholds.length)'), 'Household owners must be blocked until ownership is resolved');
-assert.ok(accountDeletion.includes('if (memberships.length)'), 'Household members must explicitly leave before account deletion');
+assert.ok(accountDeletion.includes('if (ownedHouseholds?.length)'), 'Household owners must be blocked until ownership is resolved');
+assert.ok(accountDeletion.includes('if (memberships?.length)'), 'Household members must explicitly leave before account deletion');
 assert.ok(!accountDeletion.includes('user_id: body.user_id'), 'Account deletion must derive identity from the verified JWT, never the request body');
 console.log('ProofPocket Patch #15 account-deletion safety checks passed.');
