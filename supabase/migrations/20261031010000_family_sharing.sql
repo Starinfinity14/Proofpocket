@@ -44,11 +44,11 @@ create policy "Household members read shared purchase links" on public.household
 create or replace function public.is_household_member(p_household_id uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $
   select auth.uid() is not null and exists (select 1 from public.household_members hm where hm.household_id=p_household_id and hm.user_id=auth.uid());
-$;
+$$;
 create or replace function public.is_household_owner(p_household_id uuid)
 returns boolean language sql stable security definer set search_path = public, pg_temp as $
   select auth.uid() is not null and exists (select 1 from public.households h where h.id=p_household_id and h.owner_id=auth.uid());
-$;
+$$;
 revoke all on function public.is_household_member(uuid) from public, anon;
 revoke all on function public.is_household_owner(uuid) from public, anon;
 grant execute on function public.is_household_member(uuid) to authenticated;
