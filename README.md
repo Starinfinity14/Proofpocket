@@ -26,10 +26,12 @@ The Supabase project must have the `public.purchases` table and row-level securi
 
 Before public launch:
 1. Enable leaked-password protection in Supabase Auth.
-2. Enable email confirmation and test the confirmation and password-reset flows.
+2. Enable email confirmation in Supabase Auth; verify sign-up confirmation, resend-confirmation, sign-in after confirmation, and password-reset flows using test accounts.
 3. Add the production site URL and redirect URL to Supabase Authentication → URL Configuration.
 4. Confirm the purchases table grants authenticated access and has the required RLS policies.
 5. Test sign-up, sign-in, sign-out, account switching, sync failure, offline/local-only use, and the delete-my-cloud-records confirmation flow.
+6. In Supabase Edge Function secrets, set `ALLOWED_ORIGINS` to a comma-separated list of exact trusted app origins (origins only, no paths), for example `https://starinfinity14.github.io`. Add any separately verified custom production origin when it exists. Do not use `*`. If unset, browser-origin checkout requests are denied; requests without an Origin header still require a valid authenticated user JWT.
+7. Keep `RAZORPAY_MODE=test` for this branch and verify checkout only with Razorpay Test Mode credentials. Do not add production credentials during this test phase.
 
 ## GitHub Pages deployment
 
