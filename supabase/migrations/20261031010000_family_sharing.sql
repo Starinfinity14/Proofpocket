@@ -42,11 +42,11 @@ create policy "Household members read shared purchase links" on public.household
 
 -- RLS helper functions avoid recursive policy evaluation between households and members.
 create or replace function public.is_household_member(p_household_id uuid)
-returns boolean language sql stable security definer set search_path = public, pg_temp as $
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
   select auth.uid() is not null and exists (select 1 from public.household_members hm where hm.household_id=p_household_id and hm.user_id=auth.uid());
 $$;
 create or replace function public.is_household_owner(p_household_id uuid)
-returns boolean language sql stable security definer set search_path = public, pg_temp as $
+returns boolean language sql stable security definer set search_path = public, pg_temp as $$
   select auth.uid() is not null and exists (select 1 from public.households h where h.id=p_household_id and h.owner_id=auth.uid());
 $$;
 revoke all on function public.is_household_member(uuid) from public, anon;
@@ -58,7 +58,7 @@ create policy "Members can read their memberships" on public.household_members f
 drop policy if exists "Household members can read their household" on public.households;
 create policy "Household members can read their household" on public.households for select to authenticated using (public.is_household_member(id));
 create or replace function public.create_household(p_name text)
-returns uuid language plpgsql security definer set search_path = public, pg_temp as $$
+returns uuid language plpgsql security definer set search_path = public, pg_temp as $$$
 declare v_id uuid;
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
@@ -71,7 +71,7 @@ begin
 end; $$;
 
 create or replace function public.create_household_invitation(p_household_id uuid,p_invited_email text,p_token text)
-returns timestamptz language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+returns timestamptz language plpgsql security definer set search_path = public, extensions, pg_temp as $$$
 declare v_expiry timestamptz;
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
@@ -86,7 +86,7 @@ begin
 end; $$;
 
 create or replace function public.accept_household_invitation(p_token text)
-returns uuid language plpgsql security definer set search_path = public, extensions, pg_temp as $$
+returns uuid language plpgsql security definer set search_path = public, extensions, pg_temp as $$$
 declare v_inv public.household_invitations%rowtype;
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
@@ -105,7 +105,7 @@ begin
 end; $$;
 
 create or replace function public.share_household_purchase(p_household_id uuid,p_purchase_id uuid)
-returns void language plpgsql security definer set search_path = public, pg_temp as $$
+returns void language plpgsql security definer set search_path = public, pg_temp as $$$
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
   if not exists(select 1 from public.household_members where household_id=p_household_id and user_id=auth.uid()) then raise exception 'Household membership required'; end if;
@@ -114,14 +114,14 @@ begin
 end; $$;
 
 create or replace function public.unshare_household_purchase(p_household_id uuid,p_purchase_id uuid)
-returns void language plpgsql security definer set search_path = public, pg_temp as $$
+returns void language plpgsql security definer set search_path = public, pg_temp as $$$
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
   delete from public.household_purchases where household_id=p_household_id and purchase_id=p_purchase_id and shared_by=auth.uid();
 end; $$;
 
 create or replace function public.leave_household(p_household_id uuid)
-returns void language plpgsql security definer set search_path = public, pg_temp as $$
+returns void language plpgsql security definer set search_path = public, pg_temp as $$$
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
   if exists(select 1 from public.households where id=p_household_id and owner_id=auth.uid()) then raise exception 'The owner must delete the household or transfer ownership first'; end if;
@@ -130,7 +130,7 @@ begin
 end; $$;
 
 create or replace function public.remove_household_member(p_household_id uuid,p_user_id uuid)
-returns void language plpgsql security definer set search_path = public, pg_temp as $$
+returns void language plpgsql security definer set search_path = public, pg_temp as $$$
 begin
   if auth.uid() is null then raise exception 'Sign in required'; end if;
   if not exists(select 1 from public.households where id=p_household_id and owner_id=auth.uid()) then raise exception 'Only the owner can remove members'; end if;
@@ -141,7 +141,7 @@ end; $$;
 
 create or replace function public.get_household_shared_purchases(p_household_id uuid)
 returns table(purchase_id uuid,name text,store text,category text,purchase_date date,amount numeric,return_date date,warranty_date date,notes text,shared_by uuid,shared_at timestamptz)
-language sql security definer set search_path = public, pg_temp as $$
+language sql security definer set search_path = public, pg_temp as $$$
   select p.id,p.name,p.store,p.category,p.purchase_date,p.amount,p.return_date,p.warranty_date,p.notes,hp.shared_by,hp.shared_at
   from public.household_purchases hp join public.purchases p on p.id=hp.purchase_id
   where hp.household_id=p_household_id and exists(select 1 from public.household_members m where m.household_id=p_household_id and m.user_id=auth.uid())
