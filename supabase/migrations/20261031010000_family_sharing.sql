@@ -27,6 +27,13 @@ create index if not exists household_purchases_purchase_idx on public.household_
 alter table public.household_purchases enable row level security;
 revoke all on public.household_purchases from anon, authenticated;
 grant select on public.household_purchases to authenticated;
+drop policy if exists "Household members can read their household" on public.households;
+create policy "Household members can read their household" on public.households
+  for select to authenticated using (exists (
+    select 1 from public.household_members hm
+    where hm.household_id = households.id and hm.user_id = (select auth.uid())
+  ));
+
 create policy "Household members read shared purchase links" on public.household_purchases
   for select to authenticated using (exists (
     select 1 from public.household_members m
