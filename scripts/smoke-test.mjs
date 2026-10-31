@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const html = readFileSync('index.html', 'utf8');
 const app = readFileSync('app.js', 'utf8');
 const auth = readFileSync('auth.js', 'utf8');
+const receipts = readFileSync('receipts.js', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const config = readFileSync('supabase-config.js', 'utf8');
 
@@ -14,7 +15,7 @@ for (const id of [
 ]) {
   assert.match(html, new RegExp('id="' + id + '"'), 'Missing HTML element: ' + id);
 }
-for (const asset of ['app.js', 'auth.js', 'styles.css', 'supabase-config.js']) {
+for (const asset of ['app.js', 'auth.js', 'receipts.js', 'styles.css', 'supabase-config.js']) {
   assert.ok(existsSync(asset), 'Missing runtime asset: ' + asset);
 }
 for (const behavior of [
@@ -52,3 +53,10 @@ assert.ok(webhook.includes('"subscription.activated"') && webhook.includes('"sub
 assert.ok(billing.includes('create-plus-subscription') && /waiting for the signed Razorpay webhook/i.test(billing), 'Browser callback must not directly grant Plus');
 assert.ok(!html.includes('RAZORPAY_KEY_SECRET') && !billing.includes('RAZORPAY_KEY_SECRET'), 'Razorpay secret must not appear in browser code');
 console.log('ProofPocket Plus source checks passed.');
+
+assert.ok(html.includes('receipts.js'), 'Receipt attachment module must be loaded');
+assert.ok(app.includes('data-purchase-id'), 'Purchase cards must expose their record IDs');
+assert.ok(receipts.includes("from('purchase_receipts')") && receipts.includes("from(bucket).upload"), 'Receipt upload and metadata integration missing');
+assert.ok(receipts.includes('createSignedUrl') && receipts.includes("from(bucket).remove"), 'Receipt download and deletion flows missing');
+assert.ok(receipts.includes('5 * 1024 * 1024') && receipts.includes('application/pdf'), 'Receipt file limits and MIME allowlist missing');
+console.log('ProofPocket receipt source checks passed.');
