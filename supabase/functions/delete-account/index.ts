@@ -74,7 +74,7 @@ async function removeUserFiles(admin: ReturnType<typeof createClient>, bucket: s
 }
 
 Deno.serve(async (req: Request) => {
-  const { origin } = corsHeaders(req);
+  const { origin, headers } = corsHeaders(req);
   if (req.method === "OPTIONS") {
     if (!origin || !allowedOrigins.includes(origin)) {
       return new Response(null, { status: 403, headers });
