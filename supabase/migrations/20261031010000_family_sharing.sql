@@ -127,7 +127,7 @@ begin
   if exists(select 1 from public.households where id=p_household_id and owner_id=auth.uid()) then raise exception 'The owner must delete the household or transfer ownership first'; end if;
   delete from public.household_purchases where household_id=p_household_id and shared_by=auth.uid();
   delete from public.household_members where household_id=p_household_id and user_id=auth.uid();
-end; $;
+end; $$;
 
 create or replace function public.remove_household_member(p_household_id uuid,p_user_id uuid)
 returns void language plpgsql security definer set search_path = public, pg_temp as $$
@@ -137,7 +137,7 @@ begin
   if p_user_id=auth.uid() then raise exception 'Owner cannot remove themselves'; end if;
   delete from public.household_purchases where household_id=p_household_id and shared_by=p_user_id;
   delete from public.household_members where household_id=p_household_id and user_id=p_user_id;
-end; $;
+end; $$;
 
 create or replace function public.get_household_shared_purchases(p_household_id uuid)
 returns table(purchase_id uuid,name text,store text,category text,purchase_date date,amount numeric,return_date date,warranty_date date,notes text,shared_by uuid,shared_at timestamptz)
