@@ -8,8 +8,9 @@ let user=null, household=null;
 const say=(s,bad=false)=>{status.textContent=s;status.style.color=bad?'#a63b32':''};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(error)throw error;return data}
+function populatePurchaseOptions(){const select=$('#family-purchase-id');if(!select)return;const previous=select.value;const records=window.proofPocket?.getRecords?.()||[];select.innerHTML='<option value="">Choose a synced purchase</option>'+records.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+' · '+esc(r.store||'Store not added')+'</option>').join('');if(records.some(r=>r.id===previous))select.value=previous;}
 async function refresh(){
- const {data:{user:u}}=await db.auth.getUser();user=u||null;
+ const {data:{user:u}}=await db.auth.getUser();user=u||null;populatePurchaseOptions();
  if(!user){household=null;current.textContent='Sign in from Settings to use family sharing.';members.textContent='Not signed in.';shared.textContent='Not signed in.';say('Sign in to manage household sharing.');return}
  const {data:m,error}=await db.from('household_members').select('household_id,role,joined_at').eq('user_id',user.id).maybeSingle();if(error)throw error;
  if(!m){household=null;current.textContent='You are not in a household yet.';members.textContent='No members yet.';shared.textContent='No shared purchases.';say('Create a household or accept an invitation.');return}
@@ -36,5 +37,5 @@ members?.addEventListener('click',e=>{const b=e.target.closest('[data-remove-mem
 shared?.addEventListener('click',e=>{const b=e.target.closest('[data-unshare]');if(!b)return;run(async()=>{if(!confirm('Stop sharing this purchase with the household?'))return;await rpc('unshare_household_purchase',{p_household_id:household.id,p_purchase_id:b.dataset.unshare})})});
 db.auth.onAuthStateChange(()=>{setTimeout(()=>refresh().catch(e=>say(e.message,true)),0)});
 document.querySelector('[data-view="family"]')?.addEventListener('click',()=>refresh().catch(e=>say(e.message,true)));
-refresh().catch(e=>say(e.message||'Could not load household.',true));
+window.addEventListener('proofpocket:records-changed',populatePurchaseOptions);\nrefresh().catch(e=>say(e.message||'Could not load household.',true));
 })();
