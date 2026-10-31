@@ -67,8 +67,8 @@ for (const [eventName, status, entitled] of [
   ['subscription.cancelled', 'cancelled', false],
   ['subscription.completed', 'completed', false],
 ]) {
-  const mapping = new RegExp('"' + eventName.replaceAll('.', '\\\\.') + '"\\s*:\\s*\\{\\s*status:\\s*"' + status + '",\\s*entitled:\\s*' + entitled + '\\s*\\}');
-  assert.match(webhook, mapping, 'Incorrect Plus entitlement mapping for ' + eventName);
+  const mappingText = '"' + eventName + '": { status: "' + status + '", entitled: ' + entitled + ' }';
+  assert.ok(webhook.includes(mappingText), 'Incorrect Plus entitlement mapping for ' + eventName);
 }
 assert.ok(webhook.includes('plus_entitled: mapped.entitled'), 'Persisted Plus entitlement must follow the verified subscription event mapping');
 assert.ok(billing.includes('create-plus-subscription') && /waiting for the signed Razorpay webhook/i.test(billing), 'Browser callback must not directly grant Plus');
