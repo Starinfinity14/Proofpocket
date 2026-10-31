@@ -129,3 +129,13 @@ node scripts/smoke-test.mjs
 - Browser notifications require a secure context, supported browser and user permission. This is not a background push service; notifications are not guaranteed when the app is closed or suspended.
 - No email/SMS provider, scheduled server worker or web-push subscription has been configured. Those are separate future delivery stages.
 - The reminder preference migration is part of `20261031000000_household_features_foundation.sql`; it has not been applied to Supabase.
+
+
+### Family sharing — invitation and explicit-share stage
+- Added a household workspace with owner/member roles, one household per account, and a six-person household limit.
+- Owners can create a single-use invitation code bound to the invitee's email address. Codes expire after seven days; only a signed-in account with the matching email can redeem one. The code is shown once for the owner to share privately; automatic email delivery is not configured.
+- Members can view household membership and explicitly shared purchases. Owners can remove members; members cannot see another member's private purchases unless a purchase is explicitly shared.
+- Sharing is restricted server-side to purchases owned by the signed-in account. Shared purchase access is read-only in this stage; edits and deletion remain with the original owner.
+- The family-sharing migration `20261031010000_family_sharing.sql` depends on `20261031000000_household_features_foundation.sql` and has **not** been applied. Review and apply migrations in order only after confirming the purchases schema and running the planned security review.
+- The invitation code is a bearer credential: share it only with the intended person. It is stored server-side only as a SHA-256 hash and is single-use.
+- This stage is source-complete but not yet end-to-end verified. It does not send invitation emails, transfer ownership, or support multiple households per account.
