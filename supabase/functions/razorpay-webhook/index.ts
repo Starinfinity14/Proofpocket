@@ -35,22 +35,20 @@ Deno.serve(async (req: Request) => {
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
     const createdAt = Number(event.created_at || 0);
-    const { error: eventError } = await admin.from("razorpay_webhook_events").insert({
-      event_id: eventId, event_type: event.event, created_at: createdAt,
-    });
-    if (eventError) {
-      if (eventError.code === "23505") return json({ received: true, duplicate: true });
-      console.error("Webhook event persistence failed", eventError.message);
-      return json({ error: "Could not persist event" }, 500);
+
+    // Check idempotency before applying any state. The event is recorded only
+    // after the subscription update succeeds, so a crash/failure remains retryable.
+    const { data: seenEvent, error: seenError } = await admin.from("razorpay_webhook_events")
+      .select("event_id").eq("event_id", eventId).maybeSingle();
+    if (seenError) {
+      console.error("Webhook idempotency lookup failed", seenError.message);
+      return json({ error: "Could not verify event identity" }, 500);
     }
+    if (seenEvent) return json({ received: true, duplicate: true });
 
     const { data: current, error: lookupError } = await admin.from("subscriptions")
       .select("id,last_event_created_at").eq("razorpay_subscription_id", subscription.id).maybeSingle();
     if (lookupError) {
-      // A failed lookup must remain retryable. Otherwise Razorpay's next delivery
-      // would be treated as a duplicate even though the entitlement was never checked.
-      const { error: rollbackError } = await admin.from("razorpay_webhook_events").delete().eq("event_id", eventId);
-      if (rollbackError) console.error("Could not release webhook event for retry", rollbackError.message);
       console.error("Subscription lookup failed", lookupError.message);
       return json({ error: "Subscription lookup failed" }, 500);
     }
@@ -70,7 +68,7 @@ Deno.serve(async (req: Request) => {
     const mapped = stateByEvent[event.event];
     if (!mapped) return json({ received: true, ignored: true });
     const epoch = (value: unknown) => typeof value === "number" && value > 0 ? new Date(value * 1000).toISOString() : null;
-    const { error: updateError } = await admin.from("subscriptions").update({
+    let update = admin.from("subscriptions").update({
       status: mapped.status,
       plus_entitled: mapped.entitled,
       current_start: epoch(subscription.current_start),
@@ -79,12 +77,34 @@ Deno.serve(async (req: Request) => {
       last_event_created_at: Math.max(createdAt, Number(current.last_event_created_at || 0)),
       updated_at: new Date().toISOString(),
     }).eq("id", current.id);
+    if (createdAt) update = update.lte("last_event_created_at", createdAt);
+    const { data: updatedRows, error: updateError } = await update.select("id");
     if (updateError) {
-      await admin.from("razorpay_webhook_events").delete().eq("event_id", eventId);
       console.error("Subscription update failed", updateError.message);
       return json({ error: "Could not update subscription" }, 500);
     }
-    return json({ received: true });
+    if (!updatedRows?.length) {
+      // Another delivery may have advanced the subscription while this request
+      // was running. Re-read before deciding whether this event is now stale.
+      const { data: latest, error: latestError } = await admin.from("subscriptions")
+        .select("last_event_created_at").eq("id", current.id).maybeSingle();
+      if (latestError) return json({ error: "Could not verify subscription state" }, 500);
+      if (createdAt && latest && createdAt < Number(latest.last_event_created_at || 0)) {
+        return json({ received: true, stale: true });
+      }
+    }
+
+    const { error: eventError } = await admin.from("razorpay_webhook_events").insert({
+      event_id: eventId, event_type: event.event, created_at: createdAt,
+    });
+    if (eventError) {
+      if (eventError.code === "23505") return json({ received: true, duplicate: true });
+      console.error("Webhook event record failed after subscription update", eventError.message);
+      // Returning 500 asks Razorpay to retry. The update is idempotent and the
+      // event timestamp guard prevents an older delivery undoing newer state.
+      return json({ error: "Could not record processed event" }, 500);
+    }
+
   } catch (error) {
     console.error("razorpay-webhook error", error instanceof Error ? error.message : "unknown");
     return json({ error: "Webhook processing failed" }, 500);
