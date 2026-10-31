@@ -35,7 +35,7 @@
     <p class="eyebrow">PRIVACY &amp; DATA</p>
     <h1>Privacy Policy</h1>
     <p class="policy-meta">Last updated: 30 October 2026</p>
-    <div class="policy-callout"><p><strong>In short:</strong> ProofPocket stores purchase details in your browser when you are signed out. If you choose to sign in, the app can sync those records with its Supabase cloud database. Receipt attachment controls are now part of the feature branch, but uploads remain unavailable until the required database migration is applied. Automatic reminders are not enabled.</p></div>
+    <div class="policy-callout"><p><strong>In short:</strong> ProofPocket stores purchase details in your browser when you are signed out. If you choose to sign in, the app can sync those records with its Supabase cloud database. Receipt attachment controls are now part of the feature branch, but uploads remain unavailable until the required database migration is applied. Browser notification preferences are available in the feature branch; notifications require permission and the app to remain open.</p></div>
 
     <h2>1. Information you may enter</h2>
     <p>When you use ProofPocket, you may enter item names, store or seller names, categories, purchase dates, amounts, return-by dates, warranty dates and optional notes. Please do not enter passwords, payment-card numbers, identity-document details or other highly sensitive information.</p>
@@ -53,10 +53,13 @@
     <p>The app is hosted as a static website using GitHub Pages. It loads the Supabase JavaScript library from jsDelivr. When you use account features, your browser communicates with Supabase for authentication and purchase-record sync. Those providers process technical request data under their own terms and privacy policies.</p>
     <p>ProofPocket does not currently advertise, sell purchase records, or intentionally use purchase details for targeted advertising. This statement does not cover data practices of the hosting, content-delivery or cloud service providers.</p>
 
-    <h2>4. Receipt attachments</h2>\n    <p>The receipt feature is implemented in the development branch but is not active until the household database migration is applied. When enabled, supported PDF and image files up to 5 MB can be attached to a cloud-synced purchase. Files are stored in private Supabase Storage, not encrypted end-to-end by ProofPocket, and can be downloaded using short-lived signed links. Deleting an attachment removes its stored object and metadata. Avoid uploading highly sensitive documents.</p>\n\n    <h2>5. Sharing</h2>
+    <h2>4. Reminders</h2>
+    <p>The development version supports optional browser notifications for return and warranty dates. You choose the lead times and grant notification permission. These alerts are checked while the app is open; they are not background push notifications and are not guaranteed when the browser or app is closed. Preferences may be stored locally and, after the household migration is applied, synced to your account. No email or SMS reminders are sent.</p>
+
+    <h2>5. Receipt attachments</h2>\n    <p>The receipt feature is implemented in the development branch but is not active until the household database migration is applied. When enabled, supported PDF and image files up to 5 MB can be attached to a cloud-synced purchase. Files are stored in private Supabase Storage, not encrypted end-to-end by ProofPocket, and can be downloaded using short-lived signed links. Deleting an attachment removes its stored object and metadata. Avoid uploading highly sensitive documents.</p>\n\n    <h2>6. Sharing</h2>
     <p>ProofPocket does not provide a feature for sharing your purchase records with other users. Cloud records should be protected by the database's row-level security policies so that each signed-in account can access only its own rows. Security also depends on correct project configuration and should be independently checked before a wider launch.</p>
 
-    <h2>6. Your choices and deleting information</h2>
+    <h2>7. Your choices and deleting information</h2>
     <ul>
       <li>You can edit or delete individual records in the app.</li>
       <li>You can export records before clearing local browser data.</li>
@@ -66,16 +69,16 @@
       <li>To request help with account or cloud-data deletion, use the <a href="https://github.com/Starinfinity14/Proofpocket/issues/new?title=Privacy%20or%20data%20request" target="_blank" rel="noopener noreferrer">ProofPocket privacy request page</a>. Do not post private account details or sensitive information in a public issue.</li>
     </ul>
 
-    <h2>7. Retention and security</h2>
+    <h2>8. Retention and security</h2>
     <p>Local records remain in browser storage until you delete them or clear the browser's site data. Cloud records may remain in the database until they are deleted through an available product or administrative process. No online service can promise perfect security. Use a device you trust, keep it protected, and avoid storing sensitive information in notes.</p>
 
-    <h2>8. Children and family use</h2>
+    <h2>9. Children and family use</h2>
     <p>ProofPocket is a household purchase organizer, not a service designed to collect children's personal information. If you are under the age required to create an online account in your location, ask a parent or guardian to help before creating an account.</p>
 
-    <h2>9. Changes to this policy</h2>
+    <h2>10. Changes to this policy</h2>
     <p>This policy may be updated as features and service providers change. The latest version will be published on this page with an updated date.</p>
 
-    <h2>10. Contact</h2>
+    <h2>11. Contact</h2>
     <p>For privacy questions or data requests, contact the project through the <a href="https://github.com/Starinfinity14/Proofpocket/issues/new?title=Privacy%20or%20data%20request" target="_blank" rel="noopener noreferrer">ProofPocket GitHub request page</a>. Do not include passwords, authentication codes, purchase details or other private data in a public issue.</p>
     <p class="policy-meta">This page explains the current app behavior in plain language. It is not legal advice or a substitute for a jurisdiction-specific legal review before a public commercial launch.</p>
   </article>
