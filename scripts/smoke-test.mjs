@@ -8,6 +8,7 @@ const receipts = readFileSync('receipts.js', 'utf8');
 const reminders = readFileSync('reminders.js', 'utf8');
 const family = readFileSync('family.js', 'utf8');
 const reports = readFileSync('reports.js', 'utf8');
+const vault = readFileSync('vault.js', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const config = readFileSync('supabase-config.js', 'utf8');
 
@@ -128,3 +129,17 @@ assert.ok(auth.includes("client.auth.resend({ type: 'signup'"), 'Email confirmat
 assert.ok(auth.includes('signUp') && auth.includes('signInWithPassword') && auth.includes('onAuthStateChange'), 'Sign-up, sign-in and session-change handling must be present');
 assert.ok(auth.includes('sessionGeneration') && auth.includes('userId !== ownerId'), 'Cloud sync must guard against account switching');
 console.log('ProofPocket Patch #12 security source checks passed.');
+
+
+// Patch #14: data-isolation, receipt-storage and recovery-boundary audit.
+assert.ok(auth.includes('storageKey = scope ?') && auth.includes('.account.'), 'Signed-in browser caches must be separated by account');
+assert.ok(auth.includes("client.from('purchases').delete().eq('user_id', ownerId)"), 'Cloud-record deletion must remain owner-scoped');
+assert.ok(auth.includes('Your sign-in account itself will not be deleted'), 'The UI must disclose that purchase-data deletion is not account deletion');
+assert.ok(receipts.includes("client.storage.from(bucket).remove([item.storage_path])"), 'Receipt deletion must remove the private Storage object');
+assert.ok(receipts.indexOf('client.storage.from(bucket).remove([item.storage_path])') < receipts.indexOf("client.from('purchase_receipts').delete()"), 'Receipt deletion must remove the object before deleting its metadata');
+assert.ok(vault.includes("name:'AES-GCM'") && vault.includes("name:'PBKDF2'") && vault.includes('crypto.getRandomValues'), 'Vault encryption must use authenticated encryption and fresh random parameters');
+assert.ok(vault.includes("const path=userId+'/'+id+'.ppvault'"), 'Vault objects must be placed under the authenticated user folder');
+assert.ok(vault.includes(".eq('user_id',userId)"), 'Vault metadata listing must be owner-filtered');
+assert.ok(readFileSync('README.md', 'utf8').includes('automated backup service'), 'Release documentation must disclose that JSON export is not an automated cloud backup');
+assert.ok(readFileSync('README.md', 'utf8').includes('does not delete the Supabase sign-in account'), 'Release documentation must distinguish data deletion from account deletion');
+console.log('ProofPocket Patch #14 data-isolation and recovery-boundary checks passed.');
