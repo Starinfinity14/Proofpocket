@@ -143,3 +143,19 @@ assert.ok(vault.includes(".eq('user_id',userId)"), 'Vault metadata listing must 
 assert.ok(readFileSync('README.md', 'utf8').includes('automated backup service'), 'Release documentation must disclose that JSON export is not an automated cloud backup');
 assert.ok(readFileSync('README.md', 'utf8').includes('does not delete the Supabase sign-in account'), 'Release documentation must distinguish data deletion from account deletion');
 console.log('ProofPocket Patch #14 data-isolation and recovery-boundary checks passed.');
+
+
+// Patch #15: account deletion must be server-authorized and storage-first.
+const accountDeletionPath = 'supabase/functions/delete-account/index.ts';
+assert.ok(existsSync(accountDeletionPath), 'Server-side account deletion function must exist');
+const accountDeletion = readFileSync(accountDeletionPath, 'utf8');
+for (const marker of [
+  'auth.getUser(token)', 'SUPABASE_SERVICE_ROLE_KEY', 'proofpocket-receipts',
+  'proofpocket-vault', 'storage.from(bucket).list', 'storage.from(bucket).remove',
+  'auth.admin.deleteUser', 'household_members', 'owner_id', 'return json'
+]) assert.ok(accountDeletion.includes(marker), 'Account deletion safety marker missing: ' + marker);
+assert.ok(accountDeletion.indexOf('storage.from(bucket).remove') < accountDeletion.indexOf('auth.admin.deleteUser'), 'Storage cleanup must occur before auth account deletion');
+assert.ok(accountDeletion.includes('if (ownedHouseholds.length)'), 'Household owners must be blocked until ownership is resolved');
+assert.ok(accountDeletion.includes('if (memberships.length)'), 'Household members must explicitly leave before account deletion');
+assert.ok(!accountDeletion.includes('user_id: body.user_id'), 'Account deletion must derive identity from the verified JWT, never the request body');
+console.log('ProofPocket Patch #15 account-deletion safety checks passed.');
