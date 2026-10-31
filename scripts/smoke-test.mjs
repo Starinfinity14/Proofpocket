@@ -108,3 +108,17 @@ assert.ok(reports.includes('get_household_shared_purchases') && reports.includes
 assert.ok(reports.includes('report-categories') && reports.includes('report-monthly') && reports.includes('report-coverage'), 'Category, monthly and coverage reports must be rendered');
 assert.ok(reports.includes('text/csv') && reports.includes('proofpocket-report-'), 'CSV report export must be available');
 console.log('ProofPocket reports source checks passed.');
+
+
+// Patch #12: authentication and checkout-origin security regressions.
+const checkoutCors = checkout;
+assert.ok(checkoutCors.includes('ALLOWED_ORIGINS'), 'Checkout must require an explicit origin allowlist');
+assert.ok(checkoutCors.includes('Access-Control-Allow-Origin') && checkoutCors.includes('Vary'), 'Checkout CORS must be origin-aware and cache-safe');
+assert.ok(checkoutCors.includes('req.headers.get("origin")'), 'Checkout must inspect the request Origin');
+assert.ok(checkoutCors.includes('OPTIONS') && checkoutCors.includes('403'), 'Checkout must reject disallowed CORS preflight requests');
+assert.ok(!checkoutCors.includes('"Access-Control-Allow-Origin": "*"'), 'Checkout must not allow every origin');
+assert.ok(auth.includes('resetPasswordForEmail'), 'Password reset flow must be present');
+assert.ok(auth.includes("client.auth.resend({ type: 'signup'"), 'Email confirmation resend flow must be present');
+assert.ok(auth.includes('signUp') && auth.includes('signInWithPassword') && auth.includes('onAuthStateChange'), 'Sign-up, sign-in and session-change handling must be present');
+assert.ok(auth.includes('sessionGeneration') && auth.includes('userId !== ownerId'), 'Cloud sync must guard against account switching');
+console.log('ProofPocket Patch #12 security source checks passed.');
