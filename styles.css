@@ -196,3 +196,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .reminder-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
 .reminder-status{font-size:12px;color:var(--muted);margin:12px 0 4px}
 .reminder-footnote{font-size:11px;line-height:1.6;color:var(--muted);max-width:760px}
+
+
+/* Family sharing */
+.family-panel{max-width:900px}.family-panel h2{font-size:15px;margin:16px 0 8px}.family-panel hr{border:0;border-top:1px solid var(--line);margin:20px 0}.family-help{font-size:12px;line-height:1.6;color:var(--muted);max-width:720px}.family-actions{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:12px 0}.family-actions .field{flex:1 1 240px}.family-actions button{min-height:42px}.family-result{padding:12px;border:1px solid var(--line);border-radius:10px;font-size:12px;overflow-wrap:anywhere}.family-result[hidden]{display:none}.family-members{display:grid;gap:8px}.family-member{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:12px}.family-member small{display:block;color:var(--muted);margin-top:3px}.family-member button{font-size:11px}.family-panel [hidden]{display:none!important}@media(max-width:600px){.family-actions{align-items:stretch;flex-direction:column}.family-actions button{width:100%}.family-member{align-items:flex-start;flex-direction:column}}
