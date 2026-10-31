@@ -96,7 +96,7 @@ assert.ok(family.includes('share_household_purchase') && family.includes('get_ho
 assert.ok(family.includes('getRandomValues'), 'Invitation tokens must use cryptographically secure browser randomness');
 const familyMigration = readFileSync('supabase/migrations/20261031010000_family_sharing.sql', 'utf8');
 assert.ok(familyMigration.includes('token_hash') && familyMigration.includes('redeemed_at') && familyMigration.includes('expires_at'), 'Invitations must be hashed, single-use and expiring');
-assert.ok(familyMigration.includes('lower(coalesce(auth.jwt()->>\'email\',\'\')) <> lower(v_inv.invited_email)'), 'Invitation redemption must enforce the invited email');
+assert.ok(familyMigration.includes("lower(coalesce(auth.jwt()->>''email'','''')) <> lower(v_inv.invited_email)"), 'Invitation redemption must enforce the invited email');
 assert.ok(familyMigration.includes('from public.purchases where id=p_purchase_id and user_id=auth.uid()'), 'Only purchase owners may share their purchases');
 assert.ok(familyMigration.includes('Household members read explicitly shared purchases'), 'Purchase visibility must be explicitly shared');
 console.log('ProofPocket family sharing source checks passed.');
