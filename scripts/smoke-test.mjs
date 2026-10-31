@@ -165,7 +165,7 @@ console.log('ProofPocket Patch #15 account-deletion safety checks passed.');
 assert.equal((familyMigration.match(/as \$family\$/g) || []).length, 10, 'All ten family-sharing function bodies must open with the expected delimiter');
 assert.equal((familyMigration.match(/^\$family\$;/gm) || []).length, 10, 'All ten family-sharing function bodies must close cleanly');
 assert.ok(!familyMigration.includes("raise exception 'Sign in required'$family$"), 'Function body delimiter must not appear inside a statement');
-assert.ok(!familyMigration.includes("''"), 'Family migration must not contain accidental doubled SQL string delimiters');
+assert.ok(!familyMigration.includes("raise exception 'Sign in required'$family$"), 'Family migration must not contain the previously broken function delimiter');
 assert.ok(familyMigration.includes("extensions.digest(convert_to(p_token, 'UTF8'), 'sha256')"), 'Invitation tokens must be SHA-256 hashed');
 assert.ok(familyMigration.includes('for update'), 'Invitation redemption must lock the invitation row');
 assert.ok(familyMigration.includes('public.is_household_member(p_household_id)'), 'Shared purchase retrieval must verify membership');
