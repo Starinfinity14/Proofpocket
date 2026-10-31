@@ -152,3 +152,26 @@ node scripts/smoke-test.mjs
 - Household reporting is optional and includes only purchases explicitly shared with the signed-in member.
 - Calculations use available purchase records and INR display formatting. Missing amounts and dates are excluded from calculations that require them. Reports are informational, not accounting or tax advice.
 - This stage is implemented in source but has not yet received the full end-to-end launch test.
+
+
+## Data isolation, backups and account recovery audit — Patch #14
+
+This audit is based on source and migration review only. It is not a live Supabase security test or a formal penetration test.
+
+- **Purchase isolation:** the browser keeps signed-in account caches under a user-specific local-storage key. The database must still enforce owner-scoped RLS on `public.purchases`; client-side filtering is not a security boundary. Verify SELECT, INSERT, UPDATE and DELETE policies with two separate test accounts before launch.
+- **Receipt storage:** receipt objects are private and stored beneath the owner's UUID folder. Receipt deletion removes the Storage object before its metadata row. However, deleting a purchase or account can cascade database metadata without automatically deleting the corresponding Storage object. A server-side cleanup workflow is still required to prevent orphaned receipt files.
+- **Vault storage:** the browser encrypts file bytes with AES-256-GCM using a fresh random salt and IV and a passphrase-derived PBKDF2-SHA-256 key. The passphrase is not recoverable by the service. If it is lost, the encrypted document cannot be decrypted; there is no passphrase reset or escrow mechanism. The document name and type remain database metadata.
+- **Backups:** JSON export is a user-initiated copy of purchase records in the current browser/account scope. It is not an automated backup service, does not include receipt or vault file bytes, and does not prove that a cloud restore is available. Configure and verify Supabase database and Storage backup/retention settings independently; perform a restore drill before launch.
+- **Account recovery:** password-reset email is implemented, subject to Supabase Auth URL and email-provider configuration. The in-app delete action removes purchase rows and the current account's browser cache; it does not delete the Supabase sign-in account, receipts' Storage objects, vault objects, or every household/billing record. A complete account-deletion and storage-cleanup workflow has not been implemented.
+- **Release gate:** do not describe ProofPocket as providing automatic backups, complete account deletion, guaranteed file erasure, or recoverable vault encryption until those workflows are implemented and tested. Do not upload highly sensitive documents.
+
+### Manual verification still required
+
+1. Create two independent test accounts and confirm neither can read or modify the other's purchases, receipt metadata, receipt objects, vault metadata or vault objects.
+2. Upload and delete a receipt; then delete its purchase and inspect Storage for orphaned objects.
+3. Upload, decrypt and delete a vault test file. Repeat with an incorrect passphrase and after signing out / switching accounts.
+4. Export purchase data, restore it into a clean test account/browser, and verify the result. Separately verify Supabase backup availability and restore procedure.
+5. Test password reset using the configured email provider and exact redirect URL.
+6. Review Supabase Auth user deletion, related household/billing data, and Storage cleanup as a separate privileged server-side workflow.
+
+No Supabase migrations, dashboard settings, production deployment or payment settings were changed by this audit.
