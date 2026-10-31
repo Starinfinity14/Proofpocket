@@ -184,4 +184,12 @@ assert.ok(accountDeletion.includes('req.method === \"OPTIONS\"') && accountDelet
 assert.ok(accountDeletion.includes('if (origin && !allowedOrigins.includes(origin))'), 'Account deletion must reject unapproved browser origins');
 assert.ok(accountDeletion.includes('Vary\": \"Origin'), 'Account deletion CORS must be cache-safe');
 assert.ok(accountDeletion.includes('return new Response(null, { status: 403, headers })'), 'Disallowed preflight requests must be rejected');
+// Patch #16: preflight every required bucket before the first destructive operation.
+assert.ok(accountDeletion.includes('admin.storage.listBuckets()'), 'Account deletion must verify required buckets before cleanup');
+assert.ok(accountDeletion.includes('for (const bucketId of ["proofpocket-receipts", "proofpocket-vault"])'), 'Account deletion must preflight both user-file buckets');
+assert.ok(accountDeletion.includes('!bucket || bucket.public'), 'Account deletion must refuse missing or public storage buckets');
+assert.ok(accountDeletion.includes('PRIVATE_STORAGE_PREFLIGHT_FAILED'), 'Storage preflight failures must stop before any file removal');
+const storagePreflightIndex = accountDeletion.indexOf('admin.storage.listBuckets()');
+const firstStorageRemovalIndex = accountDeletion.indexOf('removeUserFiles(admin,');
+assert.ok(storagePreflightIndex >= 0 && firstStorageRemovalIndex > storagePreflightIndex, 'Both buckets must be validated before storage cleanup begins');
 console.log('ProofPocket account-deletion CORS checks passed.');
