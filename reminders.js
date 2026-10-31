@@ -22,9 +22,9 @@
     try{
       const user=await getUser();
       if(!user){setStatus('Saved on this device. Sign in to sync preferences to your account.');return;}
-      const {data,error}=await client.from('reminder_preferences').select('email_enabled,reminder_days,timezone').eq('user_id',user.id).maybeSingle();
+      const {data,error}=await client.from('reminder_preferences').select('browser_notifications_enabled,reminder_days,timezone').eq('user_id',user.id).maybeSingle();
       if(error)throw error;
-      if(data){prefs={enabled:data.email_enabled===true,days:Array.isArray(data.reminder_days)?data.reminder_days:[1,7],timezone:data.timezone||defaults.timezone};writeLocal();render();}
+      if(data){prefs={enabled:data.browser_notifications_enabled===true,days:Array.isArray(data.reminder_days)?data.reminder_days:[1,7],timezone:data.timezone||defaults.timezone};writeLocal();render();}
       setStatus('Signed-in reminder preferences are ready. Save to sync changes.');
     }catch(err){setStatus('Cloud preferences unavailable. Apply the household migration first. '+(err.message||''),true);}
   }
@@ -44,7 +44,7 @@
     try{
       const user=await getUser();
       if(user){
-        const {error}=await client.from('reminder_preferences').upsert({user_id:user.id,email_enabled:prefs.enabled,reminder_days:prefs.days,timezone:prefs.timezone,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+        const {error}=await client.from('reminder_preferences').upsert({user_id:user.id,browser_notifications_enabled:prefs.enabled,reminder_days:prefs.days,timezone:prefs.timezone,updated_at:new Date().toISOString()},{onConflict:'user_id'});
         if(error)throw error;
         setStatus('Preferences saved on this device and synced to your account.');
       }else setStatus('Preferences saved on this device. Sign in to sync them across devices.');
