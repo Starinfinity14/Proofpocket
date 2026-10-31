@@ -26,7 +26,7 @@
     const {data:{session}}=await client.auth.getSession();
     userId=session?.user?.id||null;
     if(!userId){entitled=false; $('vault-lock').hidden=false; $('vault-content').hidden=true; status('Sign in to check Plus access.');return;}
-    const {data,error}=await client.from('subscriptions').select('plus_entitled').eq('user_id',userId).maybeSingle();
+    const {data,error}=await client.from('subscriptions').select('plus_entitled').eq('user_id',userId).order('created_at',{ascending:false}).limit(1).maybeSingle();
     if(error) throw error;
     entitled=!!data?.plus_entitled;
     $('vault-lock').hidden=entitled;
