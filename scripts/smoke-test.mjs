@@ -5,6 +5,7 @@ const html = readFileSync('index.html', 'utf8');
 const app = readFileSync('app.js', 'utf8');
 const auth = readFileSync('auth.js', 'utf8');
 const receipts = readFileSync('receipts.js', 'utf8');
+const reminders = readFileSync('reminders.js', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const config = readFileSync('supabase-config.js', 'utf8');
 
@@ -60,3 +61,9 @@ assert.ok(receipts.includes("from('purchase_receipts')") && receipts.includes("f
 assert.ok(receipts.includes('createSignedUrl') && receipts.includes("from(bucket).remove"), 'Receipt download and deletion flows missing');
 assert.ok(receipts.includes('5 * 1024 * 1024') && receipts.includes('application/pdf'), 'Receipt file limits and MIME allowlist missing');
 console.log('ProofPocket receipt source checks passed.');
+
+assert.ok(html.includes('reminders.js'), 'Reminder module must be loaded');
+assert.ok(html.includes('reminder-enabled') && html.includes('reminder-days'), 'Reminder preferences UI missing');
+assert.ok(reminders.includes('new Notification') && reminders.includes('checkDue'), 'Browser notification delivery logic missing');
+assert.ok(reminders.includes('browser_notifications_enabled') && reminders.includes('reminder_days'), 'Cloud reminder preference sync missing');
+console.log('ProofPocket reminder source checks passed.');
