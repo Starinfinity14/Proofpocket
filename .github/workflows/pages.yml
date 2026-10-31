@@ -34,6 +34,7 @@ jobs:
           node --check receipts.js
           node --check reminders.js
           node --check family.js
+          node --check reports.js
           node --check vault.js
           node --check billing.js
           node --check supabase-config.js
