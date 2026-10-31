@@ -139,3 +139,11 @@ node scripts/smoke-test.mjs
 - The family-sharing migration `20261031010000_family_sharing.sql` depends on `20261031000000_household_features_foundation.sql` and has **not** been applied. Review and apply migrations in order only after confirming the purchases schema and running the planned security review.
 - The invitation code is a bearer credential: share it only with the intended person. It is stored server-side only as a SHA-256 hash and is single-use.
 - This stage is source-complete but not yet end-to-end verified. It does not send invitation emails, transfer ownership, or support multiple households per account.
+
+
+### Reports & analytics
+- Added a Reports view with total recorded spending, average purchase amount, category breakdown, monthly spending, warranty-date coverage, and upcoming return/warranty dates.
+- Reports support all-time, current-year, 90-day, and 30-day periods, and can export the selected records to CSV.
+- Household reporting is optional and includes only purchases explicitly shared with the signed-in member.
+- Calculations use available purchase records and INR display formatting. Missing amounts and dates are excluded from calculations that require them. Reports are informational, not accounting or tax advice.
+- This stage is implemented in source but has not yet received the full end-to-end launch test.
