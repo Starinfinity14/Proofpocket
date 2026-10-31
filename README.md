@@ -45,7 +45,7 @@ The expected project-site URL is `https://starinfinity14.github.io/Proofpocket/`
 
 ## Known limitations
 
-- Receipt/image upload is not implemented.
+- Receipt attachments are implemented in the signed-in cloud-record UI; they require the household migration to be applied first.
 - Automatic push/email reminders are not implemented; deadlines are displayed in the app.
 - Cloud sync requires internet access and a correctly configured Supabase project.
 - Local-only records remain in that browser and are not automatically transferred to an account.
@@ -112,3 +112,11 @@ node scripts/smoke-test.mjs
 - Client file limit is 7 MB to allow for base64 envelope overhead under the 10 MB encrypted-object storage cap. Supported input types: PDF, JPEG, PNG and WebP.
 - The file name and category remain metadata in Supabase; document contents are encrypted. Avoid descriptive filenames if that metadata is sensitive.
 - **Not release-ready yet:** apply the billing and vault migrations in dependency order; verify bucket policies, entitlement revocation, storage cleanup, passphrase-loss messaging, and end-to-end encryption/decryption on real test accounts before enabling the feature for customers. No formal security audit has been completed.
+
+
+### Purchase receipt attachments — frontend stage
+- Added per-record receipt controls for signed-in cloud accounts: upload, list, download through short-lived signed URLs, and delete.
+- Browser validation limits files to 5 MB and JPEG, PNG, WebP or PDF. Storage objects use a per-user/per-purchase UUID path in the private bucket.
+- Local-only records remain usable; receipt controls explain that cloud sign-in and a cloud-synced purchase are required.
+- The household migration must be applied before this feature can operate. No migration was applied and no receipt was uploaded as part of this source change.
+- Receipt contents are stored as uploaded files, not end-to-end encrypted. Avoid uploading highly sensitive documents; use the Plus Vault for documents intended for client-side encryption.
