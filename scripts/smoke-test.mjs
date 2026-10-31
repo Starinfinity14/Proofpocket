@@ -51,12 +51,18 @@ assert.ok(migration.includes('razorpay_webhook_events') && migration.includes('r
 assert.ok(checkout.includes('RAZORPAY_MODE') && checkout.includes('!== "test"'), 'Checkout must refuse non-test mode');
 assert.ok(checkout.includes('auth.getUser(token)') && checkout.includes('RAZORPAY_KEY_SECRET'), 'Checkout must authenticate users and keep Razorpay secret server-side');
 assert.ok(webhook.includes('x-razorpay-signature') && webhook.includes('crypto.subtle') && webhook.includes('x-razorpay-event-id'), 'Webhook must verify signature and deduplicate events');
-assert.ok(webhook.includes('if (lookupError)') && webhook.includes('Could not release webhook event for retry') && webhook.includes('from("razorpay_webhook_events").delete()'), 'Failed subscription lookups must release the event ID so webhook delivery can retry');
+assert.ok(webhook.includes('Webhook idempotency lookup failed') && webhook.includes('Subscription lookup failed'), 'Webhook lookup failures must return retryable errors without consuming the event ID');
+assert.ok(webhook.includes('if (seenEvent) return json({ received: true, duplicate: true })'), 'Previously processed event IDs must be acknowledged as duplicates before changing entitlement');
+assert.ok(webhook.includes('update.lte("last_event_created_at", createdAt)'), 'Webhook updates must be guarded against older events racing newer subscription state');
+assert.ok(webhook.includes('Could not record processed event') && webhook.includes('return json({ error: "Could not record processed event" }, 500)'), 'Event persistence failures after state update must request provider retry');
+const webhookUpdateIndex = webhook.indexOf('const { data: updatedRows, error: updateError } = await update.select("id")');
+const webhookInsertIndex = webhook.indexOf('from("razorpay_webhook_events").insert({');
+assert.ok(webhookUpdateIndex >= 0 && webhookInsertIndex > webhookUpdateIndex, 'Webhook event IDs must be persisted only after the subscription state update succeeds');
+assert.ok(webhook.includes('Number.isFinite(parsedCreatedAt)'), 'Malformed event timestamps must be normalized safely');
 assert.ok(webhook.includes('"subscription.activated"') && webhook.includes('"subscription.charged"') && webhook.includes('plus_entitled'), 'Entitlement must be updated from subscription webhooks');
 const duplicateGuard = webhook.indexOf('if (eventError.code === "23505")');
 assert.ok(duplicateGuard >= 0 && webhook.slice(duplicateGuard, duplicateGuard + 180).includes('duplicate: true'), 'Repeated Razorpay event IDs must return a duplicate acknowledgement without reapplying entitlement');
-const lookupFailureBlock = webhook.slice(webhook.indexOf('if (lookupError)'), webhook.indexOf('if (!current)'));
-assert.ok(lookupFailureBlock.indexOf('from("razorpay_webhook_events").delete()') >= 0 && lookupFailureBlock.indexOf('from("razorpay_webhook_events").delete()') < lookupFailureBlock.indexOf('return json({ error: "Subscription lookup failed" }, 500)'), 'Lookup failures must release the event ID before returning a retryable 500');
+
 for (const [eventName, status, entitled] of [
   ['subscription.activated', 'active', true],
   ['subscription.charged', 'active', true],
