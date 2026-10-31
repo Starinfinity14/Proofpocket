@@ -103,7 +103,7 @@ assert.ok(family.includes('share_household_purchase') && family.includes('get_ho
 assert.ok(family.includes('getRandomValues'), 'Invitation tokens must use cryptographically secure browser randomness');
 const familyMigration = readFileSync('supabase/migrations/20261031010000_family_sharing.sql', 'utf8');
 assert.ok(familyMigration.includes('token_hash') && familyMigration.includes('redeemed_at') && familyMigration.includes('expires_at'), 'Invitations must be hashed, single-use and expiring');
-assert.ok(familyMigration.includes("lower(coalesce(auth.jwt()->>''email'','''')) <> lower(v_inv.invited_email)"), 'Invitation redemption must enforce the invited email');
+assert.ok(familyMigration.includes("lower(coalesce(auth.jwt()->>'email', '')) <> lower(v_inv.invited_email)"), 'Invitation redemption must enforce the invited email');
 assert.ok(familyMigration.includes('from public.purchases where id=p_purchase_id and user_id=auth.uid()'), 'Only purchase owners may share their purchases');
 assert.ok(familyMigration.includes('Household members read explicitly shared purchases'), 'Purchase visibility must be explicitly shared');
 console.log('ProofPocket family sharing source checks passed.');
@@ -159,3 +159,20 @@ assert.ok(accountDeletion.includes('if (ownedHouseholds?.length)'), 'Household o
 assert.ok(accountDeletion.includes('if (memberships?.length)'), 'Household members must explicitly leave before account deletion');
 assert.ok(!accountDeletion.includes('user_id: body.user_id'), 'Account deletion must derive identity from the verified JWT, never the request body');
 console.log('ProofPocket Patch #15 account-deletion safety checks passed.');
+
+
+// Migration integrity checks.
+assert.equal((familyMigration.match(/as \\$family\\$/g) || []).length, 8, 'All eight family-sharing function bodies must open with the expected delimiter');
+assert.equal((familyMigration.match(/^\\$family\\$;/gm) || []).length, 8, 'All eight family-sharing function bodies must close cleanly');
+assert.ok(!familyMigration.includes("raise exception 'Sign in required'$family$"), 'Function body delimiter must not appear inside a statement');
+assert.ok(!familyMigration.includes("''"), 'Family migration must not contain accidental doubled SQL string delimiters');
+assert.ok(familyMigration.includes("extensions.digest(convert_to(p_token, 'UTF8'), 'sha256')"), 'Invitation tokens must be SHA-256 hashed');
+assert.ok(familyMigration.includes('for update'), 'Invitation redemption must lock the invitation row');
+assert.ok(familyMigration.includes('public.is_household_member(p_household_id)'), 'Shared purchase retrieval must verify membership');
+const vaultMigration = readFileSync('supabase/migrations/20261101000000_plus_encrypted_document_vault.sql', 'utf8');
+assert.ok(vaultMigration.includes('create table if not exists public.vault_documents'), 'Vault metadata migration missing');
+assert.ok(vaultMigration.includes("values ('proofpocket-vault', 'proofpocket-vault', false"), 'Vault bucket must be private');
+assert.ok(vaultMigration.includes('s.plus_entitled = true'), 'Vault access must require Plus entitlement');
+const supabaseConfig = readFileSync('supabase/config.toml', 'utf8');
+assert.match(supabaseConfig, /\\[functions\\.delete-account\\][\\s\\S]*?verify_jwt = true/, 'Account deletion function must require gateway JWT verification');
+console.log('ProofPocket migration integrity and function configuration checks passed.');
