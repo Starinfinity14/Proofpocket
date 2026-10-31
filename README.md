@@ -46,7 +46,7 @@ The expected project-site URL is `https://starinfinity14.github.io/Proofpocket/`
 ## Known limitations
 
 - Receipt attachments are implemented in the signed-in cloud-record UI; they require the household migration to be applied first.
-- Automatic push/email reminders are not implemented; deadlines are displayed in the app.
+- Browser deadline reminders are implemented as foreground notifications while the app is open. They do not run reliably in the background and do not send email, SMS or web push.
 - Cloud sync requires internet access and a correctly configured Supabase project.
 - Local-only records remain in that browser and are not automatically transferred to an account.
 - This app is not a secure document vault. Do not store passwords, payment-card details, identity documents or other highly sensitive information.
@@ -120,3 +120,12 @@ node scripts/smoke-test.mjs
 - Local-only records remain usable; receipt controls explain that cloud sign-in and a cloud-synced purchase are required.
 - The household migration must be applied before this feature can operate. No migration was applied and no receipt was uploaded as part of this source change.
 - Receipt contents are stored as uploaded files, not end-to-end encrypted. Avoid uploading highly sensitive documents; use the Plus Vault for documents intended for client-side encryption.
+
+
+### Reminder preferences — browser notification stage
+- Added settings for enabling browser notifications and choosing 1, 3, 7, 14 or 30 days before return/warranty dates.
+- The app checks dates on startup, focus, visibility changes, record updates and every five minutes while open. A local deduplication key prevents repeated alerts for the same record/date/type on the same day.
+- Preferences are saved locally and can sync to the signed-in account through `reminder_preferences.browser_notifications_enabled`, `reminder_days` and `timezone`.
+- Browser notifications require a secure context, supported browser and user permission. This is not a background push service; notifications are not guaranteed when the app is closed or suspended.
+- No email/SMS provider, scheduled server worker or web-push subscription has been configured. Those are separate future delivery stages.
+- The reminder preference migration is part of `20261031000000_household_features_foundation.sql`; it has not been applied to Supabase.
