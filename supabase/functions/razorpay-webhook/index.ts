@@ -34,7 +34,8 @@ Deno.serve(async (req: Request) => {
     if (!subscription?.id) return json({ received: true, ignored: true });
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
-    const createdAt = Number(event.created_at || 0);
+    const parsedCreatedAt = Number(event.created_at || 0);
+    const createdAt = Number.isFinite(parsedCreatedAt) && parsedCreatedAt > 0 ? Math.floor(parsedCreatedAt) : 0;
 
     // Check idempotency before applying any state. The event is recorded only
     // after the subscription update succeeds, so a crash/failure remains retryable.
@@ -104,6 +105,7 @@ Deno.serve(async (req: Request) => {
       // event timestamp guard prevents an older delivery undoing newer state.
       return json({ error: "Could not record processed event" }, 500);
     }
+    return json({ received: true });
 
   } catch (error) {
     console.error("razorpay-webhook error", error instanceof Error ? error.message : "unknown");
