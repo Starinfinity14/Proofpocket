@@ -190,6 +190,6 @@ assert.ok(accountDeletion.includes('for (const bucketId of ["proofpocket-receipt
 assert.ok(accountDeletion.includes('!bucket || bucket.public'), 'Account deletion must refuse missing or public storage buckets');
 assert.ok(accountDeletion.includes('PRIVATE_STORAGE_PREFLIGHT_FAILED'), 'Storage preflight failures must stop before any file removal');
 const storagePreflightIndex = accountDeletion.indexOf('admin.storage.listBuckets()');
-const firstStorageRemovalIndex = accountDeletion.indexOf('removeUserFiles(admin,');
+const firstStorageRemovalIndex = accountDeletion.indexOf('receipts: await removeUserFiles(admin,');
 assert.ok(storagePreflightIndex >= 0 && firstStorageRemovalIndex > storagePreflightIndex, 'Both buckets must be validated before storage cleanup begins');
 console.log('ProofPocket account-deletion CORS checks passed.');
