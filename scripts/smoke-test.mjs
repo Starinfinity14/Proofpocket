@@ -7,6 +7,7 @@ const auth = readFileSync('auth.js', 'utf8');
 const receipts = readFileSync('receipts.js', 'utf8');
 const reminders = readFileSync('reminders.js', 'utf8');
 const family = readFileSync('family.js', 'utf8');
+const reports = readFileSync('reports.js', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const config = readFileSync('supabase-config.js', 'utf8');
 
@@ -17,7 +18,7 @@ for (const id of [
 ]) {
   assert.match(html, new RegExp('id="' + id + '"'), 'Missing HTML element: ' + id);
 }
-for (const asset of ['app.js', 'auth.js', 'receipts.js', 'reminders.js', 'family.js', 'styles.css', 'supabase-config.js']) {
+for (const asset of ['app.js', 'auth.js', 'receipts.js', 'reminders.js', 'family.js', 'reports.js', 'styles.css', 'supabase-config.js']) {
   assert.ok(existsSync(asset), 'Missing runtime asset: ' + asset);
 }
 for (const behavior of [
@@ -81,3 +82,11 @@ assert.ok(familyMigration.includes('lower(coalesce(auth.jwt()->>\'email\',\'\'))
 assert.ok(familyMigration.includes('p.user_id=auth.uid()') || familyMigration.includes('p.user_id=auth.uid()'), 'Only purchase owners may share their purchases');
 assert.ok(familyMigration.includes('Household members read explicitly shared purchases'), 'Purchase visibility must be explicitly shared');
 console.log('ProofPocket family sharing source checks passed.');
+
+assert.ok(html.includes('data-view="reports"') && html.includes('id="view-reports"'), 'Reports navigation and view must exist');
+assert.ok(html.includes('reports.js'), 'Reports module must be loaded');
+assert.ok(app.includes("'reports'"), 'Reports route must be registered');
+assert.ok(reports.includes('get_household_shared_purchases') && reports.includes('report-household'), 'Optional household reporting must use explicitly shared purchases');
+assert.ok(reports.includes('report-categories') && reports.includes('report-monthly') && reports.includes('report-coverage'), 'Category, monthly and coverage reports must be rendered');
+assert.ok(reports.includes('text/csv') && reports.includes('proofpocket-report-'), 'CSV report export must be available');
+console.log('ProofPocket reports source checks passed.');
