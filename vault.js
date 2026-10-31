@@ -55,7 +55,8 @@
     try{
       if(!userId||!entitled)throw new Error('Sign in with an active Plus account first.');
       const file=$('vault-file').files[0];if(!file)throw new Error('Choose a document first.');
-      if(file.size<1||file.size>maxBytes)throw new Error('Choose a file smaller than 7 MB.');\n      if(!['application/pdf','image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Only PDF, JPEG, PNG and WebP files are supported.');
+      if(file.size<1||file.size>maxBytes)throw new Error('Choose a file smaller than 7 MB.');
+      if(!['application/pdf','image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Only PDF, JPEG, PNG and WebP files are supported.');
       const pass=await getKey();status('Encrypting document in this browser…');
       const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
       const key=await derive(pass,salt);
