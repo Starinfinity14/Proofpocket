@@ -6,6 +6,7 @@ const app = readFileSync('app.js', 'utf8');
 const auth = readFileSync('auth.js', 'utf8');
 const receipts = readFileSync('receipts.js', 'utf8');
 const reminders = readFileSync('reminders.js', 'utf8');
+const family = readFileSync('family.js', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const config = readFileSync('supabase-config.js', 'utf8');
 
@@ -16,7 +17,7 @@ for (const id of [
 ]) {
   assert.match(html, new RegExp('id="' + id + '"'), 'Missing HTML element: ' + id);
 }
-for (const asset of ['app.js', 'auth.js', 'receipts.js', 'styles.css', 'supabase-config.js']) {
+for (const asset of ['app.js', 'auth.js', 'receipts.js', 'reminders.js', 'family.js', 'styles.css', 'supabase-config.js']) {
   assert.ok(existsSync(asset), 'Missing runtime asset: ' + asset);
 }
 for (const behavior of [
@@ -67,3 +68,16 @@ assert.ok(html.includes('reminder-enabled') && html.includes('reminder-days'), '
 assert.ok(reminders.includes('new Notification') && reminders.includes('checkDue'), 'Browser notification delivery logic missing');
 assert.ok(reminders.includes('browser_notifications_enabled') && reminders.includes('reminder_days'), 'Cloud reminder preference sync missing');
 console.log('ProofPocket reminder source checks passed.');
+
+assert.ok(html.includes('data-view="family"') && html.includes('id="view-family"'), 'Family sharing navigation and view must exist');
+assert.ok(html.includes('family.js'), 'Family sharing module must be loaded');
+assert.ok(app.includes("'family'"), 'Family sharing route must be registered');
+assert.ok(family.includes('create_household_invitation') && family.includes('accept_household_invitation'), 'Secure invitation workflow must be wired');
+assert.ok(family.includes('share_household_purchase') && family.includes('get_household_shared_purchases'), 'Explicit purchase sharing workflow must be wired');
+assert.ok(family.includes('getRandomValues'), 'Invitation tokens must use cryptographically secure browser randomness');
+const familyMigration = readFileSync('supabase/migrations/20261031010000_family_sharing.sql', 'utf8');
+assert.ok(familyMigration.includes('token_hash') && familyMigration.includes('redeemed_at') && familyMigration.includes('expires_at'), 'Invitations must be hashed, single-use and expiring');
+assert.ok(familyMigration.includes('lower(coalesce(auth.jwt()->>\'email\',\'\')) <> lower(v_inv.invited_email)'), 'Invitation redemption must enforce the invited email');
+assert.ok(familyMigration.includes('p.user_id=auth.uid()') || familyMigration.includes('p.user_id=auth.uid()'), 'Only purchase owners may share their purchases');
+assert.ok(familyMigration.includes('Household members read explicitly shared purchases'), 'Purchase visibility must be explicitly shared');
+console.log('ProofPocket family sharing source checks passed.');
