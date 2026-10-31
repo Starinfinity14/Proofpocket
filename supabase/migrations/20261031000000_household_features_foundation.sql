@@ -76,6 +76,7 @@ create policy "Users manage their own receipt metadata" on public.purchase_recei
 create table if not exists public.reminder_preferences (
   user_id uuid primary key references auth.users(id) on delete cascade,
   email_enabled boolean not null default false,
+  browser_notifications_enabled boolean not null default false,
   reminder_days integer[] not null default array[30,7,1],
   timezone text not null default 'Asia/Kolkata',
   updated_at timestamptz not null default now(),
