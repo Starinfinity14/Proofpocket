@@ -175,3 +175,12 @@ This audit is based on source and migration review only. It is not a live Supaba
 6. Review Supabase Auth user deletion, related household/billing data, and Storage cleanup as a separate privileged server-side workflow.
 
 No Supabase migrations, dashboard settings, production deployment or payment settings were changed by this audit.
+
+
+### Account deletion (Patch #15)
+- The server-side `delete-account` Edge Function is a separate, irreversible account-deletion workflow; the existing in-app “delete cloud records” action still deletes purchase records only.
+- Deploy `supabase/functions/delete-account/index.ts` only after the household, receipt and vault schemas and both private Storage buckets (`proofpocket-receipts`, `proofpocket-vault`) exist. Configure the function with `SUPABASE_URL`, `SUPABASE_ANON_KEY` and the server-side `SUPABASE_SERVICE_ROLE_KEY`. Never expose the service-role key in browser code.
+- The endpoint accepts POST with the signed-in user's Bearer token and JSON confirmation `{"confirmation":"DELETE MY ACCOUNT"}`. It derives the user ID from the verified token; it does not accept a caller-supplied user ID. The token must have been issued within the previous 10 minutes, so the user must sign in again immediately before requesting deletion.
+- The function refuses deletion while the user owns a household or belongs to any household. Resolve ownership or leave all households first; it never silently deletes shared household data.
+- It recursively lists and removes only that user's objects from both private buckets before deleting the Supabase Auth user. Any storage or relationship preflight failure stops the workflow before auth deletion. If Auth deletion fails after storage cleanup, retrying is safe; already-removed objects remain absent.
+- This endpoint has not been deployed or exercised against a live Supabase project. Before enabling it, test with two isolated accounts, nested storage folders, empty buckets, partial storage failures, household owner/member cases, a stale token, and a successful deletion in a disposable test project. Confirm any additional user-owned tables/buckets added by future migrations are included.
