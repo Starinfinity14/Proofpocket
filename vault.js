@@ -2,8 +2,8 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const host = $('vault-panel');
-  if (!host || !window.supabase || !window.PROOFPOCKET_SUPABASE_CONFIG) return;
-  const cfg = window.PROOFPOCKET_SUPABASE_CONFIG;
+  const cfg = window.PROOFPOCKET_SUPABASE_CONFIG || window.PROOFPocket_SUPABASE_CONFIG;
+  if (!host || !window.supabase || !cfg?.url || !cfg?.publishableKey) return;
   const client = window.supabase.createClient(cfg.url, cfg.publishableKey, {auth:{persistSession:true,autoRefreshToken:true}});
   const bucket = 'proofpocket-vault';
   const maxBytes = 7 * 1024 * 1024;
@@ -57,7 +57,7 @@
       const file=$('vault-file').files[0];if(!file)throw new Error('Choose a document first.');
       if(file.size<1||file.size>maxBytes)throw new Error('Choose a file smaller than 7 MB.');
       if(!['application/pdf','image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Only PDF, JPEG, PNG and WebP files are supported.');
-      const pass=await getKey();status('Encrypting document in this browser…');
+      const pass=await getKey();$('vault-passphrase').value='';status('Encrypting document in this browser…');
       const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
       const key=await derive(pass,salt);
       const plain=await file.arrayBuffer();
@@ -74,7 +74,7 @@
   async function download(doc){
     try{
       if(!entitled)throw new Error('Plus access is required.');
-      const pass=await getKey();status('Downloading encrypted file…');
+      const pass=await getKey();$('vault-passphrase').value='';status('Downloading encrypted file…');
       const {data,error}=await client.storage.from(bucket).download(doc.storage_path);if(error)throw error;
       const env=JSON.parse(await data.text());if(env.v!==1)throw new Error('Unsupported vault file version.');
       const key=await derive(pass,unb64(env.salt));
