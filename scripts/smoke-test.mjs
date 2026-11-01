@@ -139,7 +139,7 @@ assert.ok(auth.includes('Your sign-in account itself will not be deleted'), 'The
 assert.ok(receipts.includes("client.storage.from(bucket).remove([item.storage_path])"), 'Receipt deletion must remove the private Storage object');
 assert.ok(receipts.indexOf('client.storage.from(bucket).remove([item.storage_path])') < receipts.indexOf("client.from('purchase_receipts').delete()"), 'Receipt deletion must remove the object before deleting its metadata');
 assert.ok(vault.includes("name:'AES-GCM'") && vault.includes("name:'PBKDF2'") && vault.includes('crypto.getRandomValues'), 'Vault encryption must use authenticated encryption and fresh random parameters');
-assert.ok(vault.includes("const path=userId+'/'+id+'.ppvault'"), 'Vault objects must be placed under the authenticated user folder');
+assert.ok(vault.includes("path=userId+'/'+id+'.ppvault'"), 'Vault objects must be placed under the authenticated user folder');
 assert.ok(vault.includes(".eq('user_id',userId)"), 'Vault metadata listing must be owner-filtered');
 assert.ok(readFileSync('README.md', 'utf8').includes('automated backup service'), 'Release documentation must disclose that JSON export is not an automated cloud backup');
 assert.ok(readFileSync('README.md', 'utf8').includes('does not delete the Supabase sign-in account'), 'Release documentation must distinguish data deletion from account deletion');
