@@ -154,6 +154,13 @@ node scripts/smoke-test.mjs
 - This stage is implemented in source but has not yet received the full end-to-end launch test.
 
 
+## Final source patch — Patch #17
+
+- Corrected a stale release-smoke-test assertion: account-scoped browser storage is implemented by `window.proofPocket.setStorageScope()` in `app.js`, and authentication invokes it when the session changes. The previous assertion incorrectly searched for an obsolete `storageKey` implementation inside `auth.js`.
+- The preceding GitHub Actions run failed at that outdated assertion after all earlier smoke-test groups and JavaScript syntax checks passed. Patch #17 updates the test to check the current implementation rather than weakening the account-isolation requirement.
+- This patch is source/test maintenance only. It does not validate PostgreSQL migration execution, Supabase RLS behavior, Storage policy behavior, Razorpay webhooks, or end-to-end account deletion.
+- **Release gate remains closed:** run CI on this exact commit; test the ordered migrations in a disposable staging project; complete two-account isolation and storage cleanup tests; verify Test Mode billing; and review the final changes before any production release.
+
 ## Data isolation, backups and account recovery audit — Patch #14
 
 This audit is based on source and migration review only. It is not a live Supabase security test or a formal penetration test.
