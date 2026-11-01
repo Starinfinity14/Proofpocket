@@ -58,8 +58,10 @@
       const button = event.target.closest('button, .secondary-btn, .primary-btn');
       if (!button || button.disabled || reduceMotion) return;
       button.classList.add('pp-pressed');
-      button.addEventListener('animationend', () => button.classList.remove('pp-pressed'), { once: true });
     }, { passive: true });
+    const clearPressed = () => document.querySelectorAll('.pp-pressed').forEach(button => button.classList.remove('pp-pressed'));
+    document.addEventListener('pointerup', clearPressed, { passive: true });
+    document.addEventListener('pointercancel', clearPressed, { passive: true });
 
     // Keep motion observers lightweight when the page is hidden.
     document.addEventListener('visibilitychange', () => {
