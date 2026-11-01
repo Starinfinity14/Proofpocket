@@ -1,0 +1,41 @@
+name: ProofPocket isolated migration validation
+
+on:
+  push:
+    branches:
+      - feature/supabase-auth-sync
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One disposable Supabase stack at a time across push and PR triggers.
+  group: proofpocket-migration-validation
+  cancel-in-progress: false
+
+jobs:
+  validate-migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start isolated local Supabase stack
+        run: supabase start -x studio,edge-runtime,logflare,vector,supavisor
+
+      - name: Apply every migration to disposable local database
+        run: supabase db reset --local
+
+      - name: Stop local Supabase stack
+        if: always()
+        run: supabase stop --no-backup
