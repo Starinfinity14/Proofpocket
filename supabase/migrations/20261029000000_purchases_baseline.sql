@@ -19,7 +19,7 @@ create table if not exists public.purchases (
 
 alter table public.purchases enable row level security;
 
-revoke all on public.purchases from anon;
+revoke all on public.purchases from anon, authenticated;
 grant select, insert, update, delete on public.purchases to authenticated;
 
 drop policy if exists "Users add their own purchases" on public.purchases;
