@@ -132,7 +132,8 @@ console.log('ProofPocket Patch #12 security source checks passed.');
 
 
 // Patch #14: data-isolation, receipt-storage and recovery-boundary audit.
-assert.ok(auth.includes('storageKey = scope ?') && auth.includes('.account.'), 'Signed-in browser caches must be separated by account');
+assert.ok(app.includes('setStorageScope: (scope) => { storageKey = scope ? `${LOCAL_STORAGE_KEY}.account.${scope}` : LOCAL_STORAGE_KEY;'), 'The app must provide an account-scoped browser cache switch');
+assert.ok(auth.includes('window.proofPocket.setStorageScope(nextUserId)'), 'Authentication must switch to the signed-in account cache before cloud hydration');
 assert.ok(auth.includes("client.from('purchases').delete().eq('user_id', ownerId)"), 'Cloud-record deletion must remain owner-scoped');
 assert.ok(auth.includes('Your sign-in account itself will not be deleted'), 'The UI must disclose that purchase-data deletion is not account deletion');
 assert.ok(receipts.includes("client.storage.from(bucket).remove([item.storage_path])"), 'Receipt deletion must remove the private Storage object');
