@@ -13,8 +13,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: migration-validation-${{ github.ref }}
-  cancel-in-progress: true
+  # One disposable Supabase stack at a time across push and PR triggers.
+  group: proofpocket-migration-validation
+  cancel-in-progress: false
 
 jobs:
   validate-migrations:
